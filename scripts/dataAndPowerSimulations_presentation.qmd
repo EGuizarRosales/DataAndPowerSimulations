@@ -14,7 +14,7 @@ format:
     incremental: true
     code-fold: true
     code-annotations: hover
-    theme: serif
+    theme: default
 editor: visual
 editor_options: 
   chunk_output_type: console
