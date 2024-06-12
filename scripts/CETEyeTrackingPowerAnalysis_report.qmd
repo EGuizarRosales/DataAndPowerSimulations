@@ -1,0 +1,1642 @@
+---
+title: "CET Eye-Tracking Power Analysis"
+author: "Emmanuel Guizar Rosales"
+date: today
+date-format: "[last rendered on:] MMM D, YYYY"
+format:
+  html:
+    toc: true
+    toc-depth: 5
+    toc-expand: 2
+    number-sections: true
+    code-fold: true
+    code-summary: "Show the code"
+editor: visual
+execute: 
+  include: true
+  echo: true
+  message: false
+  warning: false
+  cache: false
+editor_options: 
+  chunk_output_type: console
+bibliography: references_CETEyeTracking.bib
+---
+
+```{r}
+#| label: setup
+
+# install package librarian if needed
+if (!("librarian" %in% rownames(installed.packages()))) {
+  install.packages("librarian")
+}
+
+# load required packages
+librarian::shelf(
+  tidyverse,
+  lme4,
+  lmerTest,
+  simr,
+  effects,
+  sjPlot,
+  ggpubr
+)
+```
+
+```{r}
+#| label: prep-p.powC-function
+
+FUNPlotPower <- function(myData,
+                         myBreaks = c(15, 30, seq(60, 160, 20)),
+                         myLegendTitle = waiver(),
+                         myLegendLabels = waiver()) {
+  plot <- myData %>% 
+    ggplot(aes(
+      x = nlevels,
+      y = mean,
+      ymin = lower,
+      ymax = upper,
+      color = type,
+      fill = type
+    )) +
+    geom_ribbon(alpha = .1, color = NA) +
+    geom_errorbar(width = 1.5) +
+    geom_line() +
+    geom_point() +
+    geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+    scale_x_continuous(breaks = myBreaks) +
+    scale_y_continuous(
+      limits = c(0, 1),
+      breaks = seq(0, 1, .05),
+      labels = paste0(seq(0, 100, 5), "%")
+    ) +
+    ggthemes::scale_color_colorblind(labels = myLegendLabels) +
+    ggthemes::scale_fill_colorblind(labels = myLegendLabels) +
+    labs(
+      x = "Number of Participants",
+      y = "Power",
+      color = myLegendTitle,
+      fill = myLegendTitle
+    ) +
+    theme_bw() +
+    theme(
+      legend.position = "inside",
+      legend.position.inside = c(.875, .21),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      axis.line = element_line(color = "black")
+    )
+  return(plot)
+}
+```
+
+```{r}
+#| label: readInPilotData
+
+# read in data
+data_pilot <- read.csv(file.path("../data/CETEyeTracking", "AllMeasures_ForAnalysis.csv"))
+
+# mutate participant and item identifiers to factors
+data_pilot <- data_pilot %>% 
+  mutate(across(c(ORSEE_code, trial_id), as.factor))
+```
+
+::: callout-note
+## Update Meeting 2024-04-04
+
+-   Prediction of Decision by SVS and Dwell Time
+    -   Main effect Dwell Time: Even after correction for SVS, increased Dwell Time is associated with a higher propability of making a pro-environmental decision. With **120 participants**, we reach 95% power to detect an effect equal to the one found in the pilot data (@fig-p.powC.decision.attitudesDT).
+    -   Interaction effect: The interaction effect is too small to be reliably detected using a reasonable sample size (@fig-p.powC.decision.attitudesDTinteraction).
+-   Prediction of Decision by SVS and Number of Transitions
+    -   Main effect Number of Transitions: Even after correction for SVS, a higher Number of Transitions is associated with a lower probability of making a pro-environmental decision. With 60 participants, we reach 95% power to detect an effect equal to the one found in the pilot data (@fig-p.powC.decision.attitudesTransition).
+    -   Interaction effect: The SVS moderates the effect of the Number of Transitions on the probability of maing a pro-environmental decision. The negative effect of the number of Transitions on pro-environmental decisions tends to be weaker among participants that score lower in pro-environmental attitudes (@fig-m.decision.attitudesTransitionInteraction). With 80 participants, we reach 95% power to detect an effect equal to the one found in the pilot data (@fig-p.powC.decision.attitudesTransitionInteraction).
+:::
+
+::: callout-tip
+## Executive Summary
+
+-   A sample size between 100 and 120 participants should provide 95% power to detect effect sizes as estimated in the pilot data.
+-   This is holds true for predicting pro-environmental decisoins by dwell time as well as for predicting dwell time by SVS Biospheric.
+-   The pilot data do not provide support for the ability of the GEB to predict dwell time.
+-   Important figures: @fig-p.powC.decision.dwellTime.effectSizes, @fig-p.powC.dwellTime.svs.effectSizes, @fig-p.powC.dwellTime.geb.effectSizes
+:::
+
+# Introduction
+
+The following script conducts power analyses for the pro-environmental decisions eye-tracking experiment. Power analyses are based on two basic models that are of main interest:
+
+1.  We would like to predict pro-environmental decisions by attentional measures.
+
+2.  We would like to predict attentional measures by pro-environmental attitudes.
+
+Regarding attentional measures, we will focus on the measure that is most often and prominently used in the literature: (relative) dwell time.[^1]
+
+[^1]: Note that in principle, we could conduct a power analysis for each attentional measure seperately, i.e., a power analysis for frequency, transitions, fixation, ... However, this would be a more tedious task than is necessary for a power analysis whose goal it is to guess an appropriate number of participants. One prominent attentional measure will do the job, i.e., dwell time.
+
+# Pilot Data
+
+Fortunately, we can base our power analyses on pilot data. In accordance with the points made in the introduction, we define the following multi-level models.
+
+First, we predict pro-environmental decisions (`proenv_decision`) by relative dwell time on carbon information (`Rel_DT_Carbon`) with random intercept for participants (`ORSEE_code`) and items (`trial_id`):
+
+$$
+proenv\_decision \sim Rel\_DT\_Carbon + (1 | ORSEE\_code) + (1 | trial\_id)
+$$ {#eq-m.decision}
+
+Second, we predict relative dwell time on carbon information by pro-environmental attitudes (biospheric subscale of Schwartz Value Scale: `svs_biospheric`; General Ecologic Behavior scale: `GEB.est`) with random intercepts for participants and items:
+
+$$
+Rel\_DT\_Carbon \sim svs\_biospheric + GEB.est + (1 | ORSEE\_code) + (1 | trial\_id)
+$$ {#eq-m.dwellTime}
+
+## Decision \~ Dwell Time
+
+Predicting pro-environmental decisions by relative dwell time on carbon information according to @eq-m.decision yields:
+
+```{r}
+#| label: res-m.decision
+
+# estimate model
+m.decision <- lme4::glmer(
+  formula = proenv_decision ~ Rel_DT_Carbon +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot,
+  family = binomial(link = "logit")
+)
+
+# print results (show log-odds and not odds ratio)
+sjPlot::tab_model(m.decision, transform = NULL)
+```
+
+As displayed in @fig-m.decision, the higher the relative dwell time on carbon information, the more likely participants chose the pro-environmental option. This is also reflected in the positive log-odds estimate of `Rel_DT_Carbon` = `r round(fixef(m.decision)['Rel_DT_Carbon'], 2)` (even though the effect is not significant given the limited sample size of `r summary(m.decision)$ngrps['ORSEE_code']` participants).
+
+```{r}
+#| label: fig-m.decision
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental choice depending on
+#|   the relative dwell time on carbon information.
+
+sjPlot::plot_model(
+  model = m.decision,
+  type = "eff",
+  terms = "Rel_DT_Carbon",
+  color = "black",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+## Dwell Time \~ Attitudes
+
+Predicting dwell time on carbon information by pro-environmental attitudes according to @eq-m.dwellTime yields:
+
+```{r}
+#| label: res-m.dwellTime
+
+# estimate model
+m.dwellTime <- lmer(
+  formula = Rel_DT_Carbon ~ GEB.est + svs_biospheric +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot
+)
+
+# print results
+sjPlot::tab_model(m.dwellTime, digits.re = 4)
+```
+
+As displayed in @fig-m.dwellTime Panel A, the higher pro-environmental attitudes are as measures by the SVS biospheric, the more relative time participants spent looking at carbon information. This is also reflected in the positive estimate of `svs_biospheric` = `r round(fixef(m.dwellTime)['svs_biospheric'], 2)`. As displayed in @fig-m.dwellTime Panel B, a similar relationship holds for pro-environmental attitudes as assessed by GEB. However, the association is considerably weaker with `GEB.est` = `r round(fixef(m.dwellTime)['GEB.est'], 2)` (which also shows in a higher p value).
+
+```{r}
+#| label: fig-m.dwellTime
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental choice depending on
+#|   the relative dwell time on carbon information.
+
+p.dwellTime.svs <- sjPlot::plot_model(
+  model = m.dwellTime,
+  type = "eff",
+  terms = "svs_biospheric",
+  color = "black",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
+p.dwellTime.geb <- sjPlot::plot_model(
+  model = m.dwellTime,
+  type = "eff",
+  terms = "GEB.est",
+  color = "black",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
+ggarrange(
+  p.dwellTime.svs,
+  p.dwellTime.geb,
+  ncol = 2,
+  labels = c("A", "B")
+)
+```
+
+# Power Simulations
+
+Based on the pilot data, we will calculate power curves for varying effect sizes. These curves plot the expected power (y-axis) for different sample sizes (x-axis) given certain effect sizes (legend). We will first calculate power curves for predicting pro-environmental decisions by relative dwell time on carbon information. In a second step, we will calculate power curves for predicting relative dwell time on carbon information by pro-environmental attitudes as assessed by SVS biospheric and GEB.
+
+## Predict Decisions by Dwell Time
+
+@fig-p.powC.decision displays the power curve for predicting pro-environmental decisions by relative dwell time on carbon information. The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.decision)['Rel_DT_Carbon'], 4)` (log-odds). The figure shows that a sample size of 100 participants would achieve 95% power to detect a true effect size that is equal to the one estimated in the pilot data.
+
+```{r}
+#| label: prep-fig-p.powC.decision
+#| eval: false
+
+# number of simulations
+nSims <- 1000
+
+# extend mDecision to include 
+m.powC.decision <- simr::extend(
+  m.decision,
+  along = "ORSEE_code",
+  n = 1000
+)
+
+# create a power curve data set
+powC.decision <- simr::powerCurve(
+  fit = m.powC.decision,
+  test = fixed(xname = "Rel_DT_Carbon", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, seq(60, 120, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.decision", "_", time, ".RData")
+
+save(
+  m.powC.decision,
+  powC.decision,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.decision
+#| fig-cap: |
+#|   Power curve for effect of relative dwell time on carbon information on
+#|   pro-environmental decision with effect size as estimated in pilot data.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.decision_20240404_1010.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.decision <- summary(powC.decision) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.decision)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
+p.powC.decision
+```
+
+Using effect sizes as estimated in pilot data as a basis for power analyses might produce inflated effect size expectations due to the limited sample size in pilot studies [@leon2011]. Thus, we also investigate power curves if the actual effect sizes for relative dwell time on carbon information are 10%, 20%, 30%, 40%, and 50% *smaller* than the observed effect size in the pilot data. This allows us to get an idea how the effect size affects power. As can be seen in @fig-p.powC.decision.dwellTime.effectSizes, we still achieve quite reasonable 80% power to detect an effect size that is xx% smaller than the effect we estimated in the pilot data.
+
+```{r}
+#| label: prep-p.powC.decision-effectSizes
+#| results: false
+
+# what is the estimated effect size in our simulated data?
+fixef(m.decision)['Rel_DT_Carbon']
+
+# we will choose a smaller effect sizes and save these in new models
+
+# will choose the new effect size to be 10% smaller than in the pilot data
+m.powC.decision.dwellTime_minus10prcnt <- m.powC.decision
+fixef(m.powC.decision.dwellTime_minus10prcnt)["Rel_DT_Carbon"] <- (1-.1)*fixef(m.powC.decision)["Rel_DT_Carbon"]
+
+# will choose the new effect size to be 20% smaller than in the pilot data
+m.powC.decision.dwellTime_minus20prcnt <- m.powC.decision
+fixef(m.powC.decision.dwellTime_minus20prcnt)["Rel_DT_Carbon"] <- (1-.2)*fixef(m.powC.decision)["Rel_DT_Carbon"]
+
+# will choose the new effect size to be 30% smaller than in the pilot data
+m.powC.decision.dwellTime_minus30prcnt <- m.powC.decision
+fixef(m.powC.decision.dwellTime_minus30prcnt)["Rel_DT_Carbon"] <- (1-.3)*fixef(m.powC.decision)["Rel_DT_Carbon"]
+
+# will choose the new effect size to be 40% smaller than in the pilot data
+m.powC.decision.dwellTime_minus40prcnt <- m.powC.decision
+fixef(m.powC.decision.dwellTime_minus40prcnt)["Rel_DT_Carbon"] <- (1-.4)*fixef(m.powC.decision)["Rel_DT_Carbon"]
+
+# will choose the new effect size to be 50% smaller than in the pilot data
+m.powC.decision.dwellTime_minus50prcnt <- m.powC.decision
+fixef(m.powC.decision.dwellTime_minus50prcnt)["Rel_DT_Carbon"] <- (1-.5)*fixef(m.powC.decision)["Rel_DT_Carbon"]
+
+# test whether simulation will work
+doTest(m.powC.decision.dwellTime_minus50prcnt, fixed("Rel_DT_Carbon", "z"))
+```
+
+```{r}
+#| label: prep-p.powC.decision.dwellTime-effectSizes-doSims
+#| eval: false
+
+# how many simulations should be done for each number of subjects?
+n_sims <- 5
+
+# what are the breaks for number of subjects we would like to calculate power for?
+breaks_subj <- c(15, 30, seq(60, 160, 20))
+ 
+# create power curve data sets
+
+powC.decision.dwellTime_minus10prcnt <- powerCurve(
+  fit = m.powC.decision.dwellTime_minus10prcnt,
+  test = fixed("Rel_DT_Carbon", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.decision.dwellTime_minus20prcnt <- powerCurve(
+  fit = m.powC.decision.dwellTime_minus20prcnt,
+  test = fixed("Rel_DT_Carbon", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.decision.dwellTime_minus30prcnt <- powerCurve(
+  fit = m.powC.decision.dwellTime_minus30prcnt,
+  test = fixed("Rel_DT_Carbon", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.decision.dwellTime_minus40prcnt <- powerCurve(
+  fit = m.powC.decision.dwellTime_minus40prcnt,
+  test = fixed("Rel_DT_Carbon", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.decision.dwellTime_minus50prcnt <- powerCurve(
+  fit = m.powC.decision.dwellTime_minus50prcnt,
+  test = fixed("Rel_DT_Carbon", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+
+# combine power curve data sets
+powC.decision.dwellTime.effectsize <- rbind(
+  summary(powC.decision) %>% 
+    mutate(type = "pilotData"),
+  summary(powC.decision.dwellTime_minus10prcnt) %>% 
+    mutate(type = "effectsize.minus10%"),
+  summary(powC.decision.dwellTime_minus20prcnt) %>% 
+    mutate(type = "effectsize.minus20%"),
+  summary(powC.decision.dwellTime_minus30prcnt) %>% 
+    mutate(type = "effectsize.minus30%"),
+  summary(powC.decision.dwellTime_minus40prcnt) %>% 
+    mutate(type = "effectsize.minus40%"),
+  summary(powC.decision.dwellTime_minus50prcnt) %>% 
+    mutate(type = "effectsize.minus50%")
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.decision.dwellTime.effectsize", "_", time, ".RData")
+
+save(
+  powC.decision.dwellTime_minus10prcnt,
+  powC.decision.dwellTime_minus20prcnt,
+  powC.decision.dwellTime_minus30prcnt,
+  powC.decision.dwellTime_minus40prcnt,
+  powC.decision.dwellTime_minus50prcnt,
+  powC.decision.dwellTime.effectsize,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.decision.dwellTime.effectSizes
+#| fig-cap: |
+#|   Power curve for the effect of relative dwell time on carbon information on
+#|   pro-environmental decisions by varying effect sizes.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.decision.dwellTime.effectsize_20240404_1654.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# prepare data for plot: add + 2 on x axis for every type in order to prevent
+# overprinting of errorbars
+dataForPlot <- rbind(
+  filter(powC.decision.dwellTime.effectsize, type == "pilotData"),
+  filter(powC.decision.dwellTime.effectsize, type == "effectsize.minus10%") %>% 
+    mutate(nlevels = nlevels + 1*2),
+  filter(powC.decision.dwellTime.effectsize, type == "effectsize.minus20%") %>% 
+    mutate(nlevels = nlevels + 2*2),
+  filter(powC.decision.dwellTime.effectsize, type == "effectsize.minus30%") %>% 
+    mutate(nlevels = nlevels + 3*2),
+  filter(powC.decision.dwellTime.effectsize, type == "effectsize.minus40%") %>% 
+    mutate(nlevels = nlevels + 4*2),
+  filter(powC.decision.dwellTime.effectsize, type == "effectsize.minus50%") %>% 
+    mutate(nlevels = nlevels + 5*2)
+)
+# define levels of type
+dataForPlot <- dataForPlot %>% 
+  mutate(type = factor(type,
+                       levels = c(
+                         "pilotData",
+                         "effectsize.minus10%",
+                         "effectsize.minus20%",
+                         "effectsize.minus30%",
+                         "effectsize.minus40%",
+                         "effectsize.minus50%"
+                       )))
+
+tmp.legendLabels <- c(
+  paste0("pilot data = ", round(fixef(m.decision)['Rel_DT_Carbon'], 4)),
+  paste0("-", seq(10, 50, 10), "% = ", round(fixef(m.decision)['Rel_DT_Carbon']*(1-seq(.1, .5, .1)), digits = 4))
+)
+
+# create and display plot
+p.powC.decision.dwellTime.effectSizes <- FUNPlotPower(
+  myData= dataForPlot,
+  myLegendTitle = "Effect Size",
+  myLegendLabels = tmp.legendLabels
+)
+p.powC.decision.dwellTime.effectSizes
+```
+
+## Predict Dwell Time by Pro-Environmental Attitudes
+
+@fig-p.powC.dwellTime.svs displays the power curve for prediction relative dwell time on carbon information by pro-environmental attitudes as assessed by SVS Biospheric. The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.dwellTime)['svs_biospheric'], 4)`. The figure shows that with a sample size of about 110 participants, we achieve 95% power to detect an effect that is equal to the one estimated in the pilot data.
+
+```{r}
+#| label: prep-fig-p.powC.dwellTime.svs
+#| eval: false
+
+# number of simulations
+nSims <- 1000
+
+# extend mDecision to include 
+m.powC.dwellTime <- simr::extend(
+  m.dwellTime,
+  along = "ORSEE_code",
+  n = 1000
+)
+
+# create a power curve data set
+powC.dwellTime.svs <- simr::powerCurve(
+  fit = m.powC.dwellTime,
+  test = fixed(xname = "svs_biospheric", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, 30, seq(60, 160, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.dwellTime.svs", "_", time, ".RData")
+
+save(
+  m.powC.dwellTime,
+  powC.dwellTime.svs,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.dwellTime.svs
+#| fig-cap: |
+#|   Power curve for effect of pro-environmental attitudes as assessed by
+#|   SVS Biospheric on relative dwell time on carbon information.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.dwellTime.svs_20240404_1012.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.dwellTime.svs <- summary(powC.dwellTime.svs) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.dwellTime.svs)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+p.powC.dwellTime.svs
+```
+
+@fig-p.powC.dwellTime.svs.effectSizes shows power curves in which the actual effect sizes for SVS Biospheric are 10%, 20%, 30%, 40%, and 50% *smaller* than the observed effect size in the pilot data. With a sample size of 120, we still achieve 95% power to detect an effect that is 10% smaller than the effect estimated in the pilot data and about 90% power to detect an effect that is 20% smaller than the one estimated in the pilot data.
+
+```{r}
+#| label: prep-p.powC.dwellTime.svs-effectSizes
+#| results: false
+
+# what is the estimated effect size in our simulated data?
+fixef(m.dwellTime)['svs_biospheric']
+
+# we will choose a smaller effect sizes and save these in new models
+
+# will choose the new effect size to be 10% smaller than in the pilot data
+m.powC.dwellTime.svs_minus10prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.svs_minus10prcnt)["svs_biospheric"] <- (1-.1)*fixef(m.dwellTime)["svs_biospheric"]
+
+# will choose the new effect size to be 20% smaller than in the pilot data
+m.powC.dwellTime.svs_minus20prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.svs_minus20prcnt)["svs_biospheric"] <- (1-.2)*fixef(m.dwellTime)["svs_biospheric"]
+
+# will choose the new effect size to be 30% smaller than in the pilot data
+m.powC.dwellTime.svs_minus30prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.svs_minus30prcnt)["svs_biospheric"] <- (1-.3)*fixef(m.dwellTime)["svs_biospheric"]
+
+# will choose the new effect size to be 40% smaller than in the pilot data
+m.powC.dwellTime.svs_minus40prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.svs_minus40prcnt)["svs_biospheric"] <- (1-.4)*fixef(m.dwellTime)["svs_biospheric"]
+
+# will choose the new effect size to be 50% smaller than in the pilot data
+m.powC.dwellTime.svs_minus50prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.svs_minus50prcnt)["svs_biospheric"] <- (1-.5)*fixef(m.dwellTime)["svs_biospheric"]
+
+
+# test whether simulation will work
+doTest(m.powC.dwellTime.svs_minus50prcnt, fixed("svs_biospheric", "z"))
+```
+
+```{r}
+#| label: prep-p.powC.dwellTime.svs-effectSizes-doSims
+#| eval: false
+
+# how many simulations should be done for each number of subjects?
+n_sims <- 1000
+
+# what are the breaks for number of subjects we would like to calculate power for?
+breaks_subj <- c(15, 30, seq(60, 160, 20))
+ 
+# create power curve data sets
+
+powC.dwellTime.svs_minus10prcnt <- powerCurve(
+  fit = m.powC.dwellTime.svs_minus10prcnt,
+  test = fixed("svs_biospheric", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.svs_minus20prcnt <- powerCurve(
+  fit = m.powC.dwellTime.svs_minus20prcnt,
+  test = fixed("svs_biospheric", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.svs_minus30prcnt <- powerCurve(
+  fit = m.powC.dwellTime.svs_minus30prcnt,
+  test = fixed("svs_biospheric", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.svs_minus40prcnt <- powerCurve(
+  fit = m.powC.dwellTime.svs_minus40prcnt,
+  test = fixed("svs_biospheric", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.svs_minus50prcnt <- powerCurve(
+  fit = m.powC.dwellTime.svs_minus50prcnt,
+  test = fixed("svs_biospheric", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+
+# combine power curve data sets
+powC.dwellTime.svs.effectsize <- rbind(
+  summary(powC.dwellTime.svs) %>% 
+    mutate(type = "pilotData"),
+  summary(powC.dwellTime.svs_minus10prcnt) %>% 
+    mutate(type = "effectsize.minus10%"),
+  summary(powC.dwellTime.svs_minus20prcnt) %>% 
+    mutate(type = "effectsize.minus20%"),
+  summary(powC.dwellTime.svs_minus30prcnt) %>% 
+    mutate(type = "effectsize.minus30%"),
+  summary(powC.dwellTime.svs_minus40prcnt) %>% 
+    mutate(type = "effectsize.minus40%"),
+  summary(powC.dwellTime.svs_minus50prcnt) %>% 
+    mutate(type = "effectsize.minus50%")
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.dwellTime.svs.effectsize", "_", time, ".RData")
+
+save(
+  powC.dwellTime.svs_minus10prcnt,
+  powC.dwellTime.svs_minus20prcnt,
+  powC.dwellTime.svs_minus30prcnt,
+  powC.dwellTime.svs_minus40prcnt,
+  powC.dwellTime.svs_minus50prcnt,
+  powC.dwellTime.svs.effectsize,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.dwellTime.svs.effectSizes
+#| fig-cap: |
+#|   Power curves for predicting relative dwell time on carbon information by
+#|   SVS biospheric depending on effect size.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.dwellTime.svs.effectsize_20240403_1912.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# prepare data for plot: add + 2 on x axis for every type in order to prevent
+# overprinting of errorbars
+dataForPlot <- rbind(
+  filter(powC.dwellTime.svs.effectsize, type == "pilotData"),
+  filter(powC.dwellTime.svs.effectsize, type == "effectsize.minus10%") %>% 
+    mutate(nlevels = nlevels + 1*1),
+  filter(powC.dwellTime.svs.effectsize, type == "effectsize.minus20%") %>% 
+    mutate(nlevels = nlevels + 2*1),
+  filter(powC.dwellTime.svs.effectsize, type == "effectsize.minus30%") %>% 
+    mutate(nlevels = nlevels + 3*1),
+  filter(powC.dwellTime.svs.effectsize, type == "effectsize.minus40%") %>% 
+    mutate(nlevels = nlevels + 4*1),
+  filter(powC.dwellTime.svs.effectsize, type == "effectsize.minus50%") %>% 
+    mutate(nlevels = nlevels + 5*1)
+)
+# define levels of type
+dataForPlot <- dataForPlot %>% 
+  mutate(type = factor(type,
+                       levels = c(
+                         "pilotData",
+                         "effectsize.minus10%",
+                         "effectsize.minus20%",
+                         "effectsize.minus30%",
+                         "effectsize.minus40%",
+                         "effectsize.minus50%"
+                       )))
+
+tmp.legendLabels <- c(
+  paste0("pilot data = ", round(fixef(m.dwellTime)['svs_biospheric'], 4)),
+  paste0("-", seq(10, 50, 10), "% = ", round(fixef(m.dwellTime)['svs_biospheric']*(1-seq(.1, .5, .1)), digits = 4))
+)
+
+# create and display plot
+p.powC.dwellTime.svs.effectSizes <- FUNPlotPower(
+  myData= dataForPlot,
+  myLegendTitle = "Effect Size",
+  myLegendLabels = tmp.legendLabels
+)
+p.powC.dwellTime.svs.effectSizes
+```
+
+@fig-p.powC.dwellTime.geb displays the power curve for predicting relative dwell time on carbon information by pro-environmental attitudes as assessed by GEB. The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.dwellTime)['GEB.est'], 4)`. The figure shows that no reasonable sample size is capable of achieving enough power to detect an effect size that is as small as the one estimated in the pilot data.
+
+```{r}
+#| label: prep-fig-p.powC.dwellTime.geb
+#| eval: false
+
+# number of simulations
+nSims <- 1000
+
+# create a power curve data set
+powC.dwellTime.geb <- simr::powerCurve(
+  fit = m.powC.dwellTime,
+  test = fixed(xname = "GEB.est", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, 30, seq(60, 160, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.dwellTime.geb", "_", time, ".RData")
+
+save(
+  powC.dwellTime.geb,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.dwellTime.geb
+#| fig-cap: |
+#|   Power curve for effect of pro-environmental attitudes as assessed by
+#|   GEB on relative dwell time on carbon information.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.dwellTime.geb_20240403_1652.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.dwellTime.geb <- summary(powC.dwellTime.geb) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.dwellTime.geb)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+p.powC.dwellTime.geb
+```
+
+@fig-p.powC.dwellTime.geb.effectSizes displays power curves in which the actual effect sizes for GEB are 20%, 40%, 60%, 80%, and 100% *higher* than the observed effect size in the pilot data. The figure shows that even for effect sizes that are twice as big as the one estimated in the pilot data, no reasonable sample size seems to reach a minimum of 80% power to detect a true effect. This might be due to the very small effect size of GEB or to high noise in estimating the effect. It is unclear whether this is a peculiarity of the pilot data or a true reflection of the actual associations in the population.
+
+```{r}
+#| label: prep-p.powC.dwellTime.geb-effectSizes
+#| results: false
+
+# what is the estimated effect size in our simulated data?
+fixef(m.dwellTime)['GEB.est']
+
+# we will choose a greater effect sizes and save these in new models
+
+# will choose the new effect size to be 20% higher than in the pilot data
+m.powC.dwellTime.geb_plus20prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.geb_plus20prcnt)["GEB.est"] <- (1+.2)*fixef(m.dwellTime)["GEB.est"]
+
+# will choose the new effect size to be 40% higher than in the pilot data
+m.powC.dwellTime.geb_plus40prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.geb_plus40prcnt)["GEB.est"] <- (1+.4)*fixef(m.dwellTime)["GEB.est"]
+
+# will choose the new effect size to be 60% higher than in the pilot data
+m.powC.dwellTime.geb_plus60prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.geb_plus60prcnt)["GEB.est"] <- (1+.6)*fixef(m.dwellTime)["GEB.est"]
+
+# will choose the new effect size to be 80% higher than in the pilot data
+m.powC.dwellTime.geb_plus80prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.geb_plus80prcnt)["GEB.est"] <- (1+.8)*fixef(m.dwellTime)["GEB.est"]
+
+# will choose the new effect size to be 100% higher than in the pilot data
+m.powC.dwellTime.geb_plus100prcnt <- m.powC.dwellTime
+fixef(m.powC.dwellTime.geb_plus100prcnt)["GEB.est"] <- (1+1)*fixef(m.dwellTime)["GEB.est"]
+
+
+# test whether simulation will work
+doTest(m.powC.dwellTime.geb_plus100prcnt, fixed("GEB.est", "z"))
+```
+
+```{r}
+#| label: prep-p.powC.dwellTime.geb-effectSizes-doSims
+#| eval: false
+
+# how many simulations should be done for each number of subjects?
+n_sims <- 5
+
+# what are the breaks for number of subjects we would like to calculate power for?
+breaks_subj <- c(15, 30, seq(60, 160, 20))
+ 
+# create power curve data sets
+
+powC.dwellTime.geb_plus20prcnt <- powerCurve(
+  fit = m.powC.dwellTime.geb_plus20prcnt,
+  test = fixed("GEB.est", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.geb_plus40prcnt <- powerCurve(
+  fit = m.powC.dwellTime.geb_plus40prcnt,
+  test = fixed("GEB.est", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.geb_plus60prcnt <- powerCurve(
+  fit = m.powC.dwellTime.geb_plus60prcnt,
+  test = fixed("GEB.est", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.geb_plus80prcnt <- powerCurve(
+  fit = m.powC.dwellTime.geb_plus80prcnt,
+  test = fixed("GEB.est", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+powC.dwellTime.geb_plus100prcnt <- powerCurve(
+  fit = m.powC.dwellTime.geb_plus100prcnt,
+  test = fixed("GEB.est", method = "z"),
+  along = "ORSEE_code",
+  breaks = breaks_subj,
+  nsim = n_sims,
+  progress = TRUE
+)
+
+# combine power curve data sets
+powC.dwellTime.geb.effectsize <- rbind(
+  summary(powC.dwellTime.geb) %>% 
+    mutate(type = "pilotData"),
+  summary(powC.dwellTime.geb_plus20prcnt) %>% 
+    mutate(type = "effectsize.plus20%"),
+  summary(powC.dwellTime.geb_plus40prcnt) %>% 
+    mutate(type = "effectsize.plus40%"),
+  summary(powC.dwellTime.geb_plus60prcnt) %>% 
+    mutate(type = "effectsize.plus60%"),
+  summary(powC.dwellTime.geb_plus80prcnt) %>% 
+    mutate(type = "effectsize.plus80%"),
+  summary(powC.dwellTime.geb_plus100prcnt) %>% 
+    mutate(type = "effectsize.plus100%")
+)
+
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.dwellTime.geb.effectsize", "_", time, ".RData")
+
+save(
+  powC.dwellTime.geb_plus20prcnt,
+  powC.dwellTime.geb_plus40prcnt,
+  powC.dwellTime.geb_plus60prcnt,
+  powC.dwellTime.geb_plus80prcnt,
+  powC.dwellTime.geb_plus100prcnt,
+  powC.dwellTime.geb.effectsize,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.dwellTime.geb.effectSizes
+#| fig-cap: |
+#|   Power curves for predicting relative dwell time on carbon information by
+#|   GEB depending on effect size.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.dwellTime.geb.effectsize_20240403_1815.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# prepare data for plot: add + 2 on x axis for every type in order to prevent
+# overprinting of errorbars
+dataForPlot <- rbind(
+  filter(powC.dwellTime.geb.effectsize, type == "pilotData"),
+  filter(powC.dwellTime.geb.effectsize, type == "effectsize.plus20%") %>% 
+    mutate(nlevels = nlevels + 1*1),
+  filter(powC.dwellTime.geb.effectsize, type == "effectsize.plus40%") %>% 
+    mutate(nlevels = nlevels + 2*1),
+  filter(powC.dwellTime.geb.effectsize, type == "effectsize.plus60%") %>% 
+    mutate(nlevels = nlevels + 3*1),
+  filter(powC.dwellTime.geb.effectsize, type == "effectsize.plus80%") %>% 
+    mutate(nlevels = nlevels + 4*1),
+  filter(powC.dwellTime.geb.effectsize, type == "effectsize.plus100%") %>% 
+    mutate(nlevels = nlevels + 5*1)
+)
+# define levels of type
+dataForPlot <- dataForPlot %>% 
+  mutate(type = factor(type,
+                       levels = c(
+                         "pilotData",
+                         "effectsize.plus20%",
+                         "effectsize.plus40%",
+                         "effectsize.plus60%",
+                         "effectsize.plus80%",
+                         "effectsize.plus100%"
+                       )))
+
+tmp.legendLabels <- c(
+  paste0("pilot data = ", round(fixef(m.dwellTime)['GEB.est'], 4)),
+  paste0("+", seq(20, 100, 20), "% = ", round(fixef(m.dwellTime)['GEB.est']*(1+seq(.2, 1, .2)), digits = 4))
+)
+
+# create and display plot
+p.powC.dwellTime.geb.effectSizes <- FUNPlotPower(
+  myData= dataForPlot,
+  myLegendTitle = "Effect Size",
+  myLegendLabels = tmp.legendLabels
+) +
+  theme(legend.position.inside = c(.15, .7))
+p.powC.dwellTime.geb.effectSizes
+```
+
+# Conclusion
+
+With a sample size between 100 and 120 participants, we should achieve between 90% and 95% power to detect effect sizes that are equal to or slightly lower than the effect sizes estimated in the pilot data. This is true for predicting pro-environmental decisions by relative dwell time on carbon information as well as for predicting relative dwell time on carbon information by pro-environmental attitudes assessed by SVS Biospheric. The pilot data do not provide evidence for the predictive ability of GEB.
+
+# Updates Meeting 2024-04-04
+
+## Decision by SVS and Dwell Time
+
+### Pilot Data
+
+We predict pro-environmental decisions (`proenv_decision`) by pro-environmental attitudes as assessed by the SVS biospheric (`svs_biospheric`) and relative dwell time on carbon information (`Rel_DT_Carbon`) with random intercept for participants (`ORSEE_code`) and items (`trial_id`):
+
+$$
+\begin{split}
+  proenv\_decision \sim svs\_biospheric + Rel\_DT\_Carbon \, + \\
+  (1 | ORSEE\_code) + (1 | trial\_id)
+\end{split}
+$$ {#eq-m.decision.attitudesDT}
+
+We then add the interaction term `svs_biospheric * Rel_DT_Carbon`:
+
+$$
+\begin{split}
+  proenv\_decision \sim svs\_biospheric + Rel\_DT\_Carbon \, + \\
+  svs\_biospheric \cdot  Rel\_DT\_Carbon + (1 | ORSEE\_code) + (1 | trial\_id)
+\end{split}
+$$ {#eq-m.decision.attitudesDTinteraction}
+
+Modelling decisions according to @eq-m.decision.attitudesDT and @eq-m.decision.attitudesDTinteraction yields:
+
+```{r}
+#| label: res-m.decision.attitudesDT
+
+# center variables to ease interpretation of main effects in models with interaction
+data_pilot <- data_pilot %>% 
+  mutate(across(
+    .cols = c(svs_biospheric, Rel_DT_Carbon, nb_transition),
+    .fns = \(x) scale(x, center = TRUE, scale = TRUE),
+    .names = "{.col}_scaled"
+  ))
+
+# estimate model with main effects
+m.decision.attitudesDT <- lme4::glmer(
+  formula = proenv_decision ~ svs_biospheric_scaled + Rel_DT_Carbon_scaled +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot,
+  family = binomial(link = "logit")
+)
+
+# estimate model with interaction effect
+m.decision.attitudesDTinteraction <- lme4::glmer(
+  formula = proenv_decision ~ svs_biospheric_scaled * Rel_DT_Carbon_scaled +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot,
+  family = binomial(link = "logit")
+)
+
+# print results (show log-odds and not odds ratio)
+sjPlot::tab_model(
+  m.decision.attitudesDT,
+  m.decision.attitudesDTinteraction,
+  transform = NULL
+)
+```
+
+As displayed in @fig-m.decision.attitudesDTinteraction, the positive effect of relative dwell time on carbon information on pro-environmental decision tends to be stronger among participants that score lower in pro-environmental attitudes as assessed by SVS Biospheric. This is also reflected in the negative log-odds estimate of the interaction term (`r round(fixef(m.decision.attitudesDTinteraction)['svs_biospheric_scaled:Rel_DT_Carbon_scaled'], 2)`).
+
+```{r}
+#| label: fig-m.decision.attitudesDTinteraction
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental choice depending on
+#|   the pro-environmental attitude assessed by the SVS biospheric
+#|   and the relative dwell time on carbon information.
+
+sjPlot::plot_model(
+  model = m.decision.attitudesDTinteraction,
+  type = "pred",
+  terms = c("Rel_DT_Carbon_scaled[all]", "svs_biospheric_scaled"),
+  mdrt.values = "meansd",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+### Power Simulations
+
+@fig-p.powC.decision.attitudesDT displays the power curve for the main effect of relative dwell time on pro-environmental decisions, controlling for pro-environmental attitudes assessed by SVS Biospheric (#eq-m.decision.attitudesDT). The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.decision.attitudesDT)['Rel_DT_Carbon_scaled'], 4)` (log-odds).
+
+The figure shows that a sample size of 100 participants would achieve 95% power to detect a true effect size that is equal to the one estimated in the pilot data.
+
+```{r}
+#| label: prep-fig-p.powC.decision.attitudesDT
+#| eval: false
+
+# number of simulations
+nSims <- 5
+
+# extend mDecision to include 
+m.powC.decision.attitudesDT <- simr::extend(
+  m.decision.attitudesDT,
+  along = "ORSEE_code",
+  n = 1000
+)
+
+# create a power curve data set
+powC.decision.attitudesDT <- simr::powerCurve(
+  fit = m.powC.decision.attitudesDT,
+  test = fixed(xname = "Rel_DT_Carbon_scaled", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, 30, seq(60, 160, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.decision.attitudesDT", "_", time, ".RData")
+
+save(
+  m.powC.decision.attitudesDT,
+  powC.decision.attitudesDT,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.decision.attitudesDT
+#| fig-cap: |
+#|   Power curve for the effect of relative dwell time on pro-environmental decisions
+#|   controlling for pro-environmental attitudes (SVS Biospheric).
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.decision.attitudesDT_20240405_1436.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.decision.attitudesDT <- summary(powC.decision.attitudesDT) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.decision.attitudesDT)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+p.powC.decision.attitudesDT
+```
+
+@fig-p.powC.decision.attitudesDTinteraction displays the power curve for the interaction effect of pro-environmental attitudes assessed by SVS Biospheric and relative dwell time on carbon information in predicting pro-environmental decisions (#eq-m.decision.attitudesDTinteraction). The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.decision.attitudesDTinteraction)['svs_biospheric_scaled:Rel_DT_Carbon_scaled'], 4)` (log-odds). The figure shows that the interaction effect is too small to be reliably be detected by a reasonable sample size.
+
+```{r}
+#| label: prep-fig-p.powC.decision.attitudesDTinteraction
+#| eval: false
+
+# number of simulations
+nSims <- 5
+
+# extend mDecision to include 
+m.powC.decision.attitudesDTinteraction <- simr::extend(
+  m.decision.attitudesDTinteraction,
+  along = "ORSEE_code",
+  n = 1000
+)
+
+# create a power curve data set
+powC.decision.attitudesDTinteraction <- simr::powerCurve(
+  fit = m.powC.decision.attitudesDTinteraction,
+  test = fixed(xname = "svs_biospheric_scaled:Rel_DT_Carbon_scaled", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, 30, seq(60, 160, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.decision.attitudesDTinteraction", "_", time, ".RData")
+
+save(
+  m.powC.decision.attitudesDTinteraction,
+  powC.decision.attitudesDTinteraction,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.decision.attitudesDTinteraction
+#| fig-cap: |
+#|   Power curve for interaction effect of pro-environmental attitudes (SVS Biospheric) and 
+#|   relative dwell time on pro-environmental decisions.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.decision.attitudesDTinteraction_20240404_2102.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.decision.attitudesDTinteraction <- summary(powC.decision.attitudesDTinteraction) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.decision.attitudesDTinteraction)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+p.powC.decision.attitudesDTinteraction
+```
+
+## Transistions as attention measure
+
+First, we predict pro-environmental decisions (`proenv_decision`) by the number of transitions between carbon and bonus information (`nb_transition`) with random intercept for participants (`ORSEE_code`) and items (`trial_id`):
+
+$$
+proenv\_decision \sim nb\_transition + (1 | ORSEE\_code) + (1 | trial\_id)
+$$ {#eq-m.decision.transition}
+
+Second, we predict the number of transitions between carbon and bonus information by pro-environmental attitudes (biospheric subscale of Schwartz Value Scale: `svs_biospheric`; General Ecologic Behavior scale: `GEB.est`) with random intercepts for participants and items:
+
+$$
+nb\_transition \sim svs\_biospheric + GEB.est + (1 | ORSEE\_code) + (1 | trial\_id)
+$$ {#eq-m.dwellTime.transition}
+
+### Decision \~ Transitions
+
+Predicting pro-environmental decisions by number of transitions between carbon and bonus information according to @eq-m.decision.transition yields:
+
+```{r}
+#| label: res-m.decision.transition
+
+# estimate model
+m.decision.transition <- lme4::glmer(
+  formula = proenv_decision ~ nb_transition +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot,
+  family = binomial(link = "logit")
+)
+
+# print results (show log-odds and not odds ratio)
+sjPlot::tab_model(m.decision.transition, transform = NULL)
+```
+
+As displayed in @fig-m.decision.transition, the higher the number of transitions between carbon and bonus information, the less likely participants chose the pro-environmental option. This is also reflected in the negative log-odds estimate of `nb_transition` = `r round(fixef(m.decision.transition)['nb_transition'], 2)`.
+
+```{r}
+#| label: fig-m.decision.transition
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental decision depending on
+#|   the number of transitions between carbon and bonus information.
+
+sjPlot::plot_model(
+  model = m.decision.transition,
+  type = "eff",
+  terms = "nb_transition",
+  color = "black",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+### Transition \~ Attitudes
+
+Predicting number of transitions between carbon and bonus information by pro-environmental attitudes according to @eq-m.dwellTime.transition yields:
+
+```{r}
+#| label: res-m.dwellTime.transition
+
+# estimate model
+m.dwellTime.transition <- lmer(
+  formula = nb_transition ~ GEB.est + svs_biospheric +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot
+)
+
+# print results
+sjPlot::tab_model(m.dwellTime.transition, digits.re = 4)
+```
+
+As displayed in @fig-m.dwellTime.transition Panel A, the higher pro-environmental attitudes are as measures by the SVS biospheric, the more participants transition between carbon and bonus information. This is also reflected in the positive estimate of `svs_biospheric` = `r round(fixef(m.dwellTime.transition)['svs_biospheric'], 2)`. As displayed in @fig-m.dwellTime.transition Panel B, a opposite relationship holds for pro-environmental attitudes as assessed by GEB: `GEB.est` = `r round(fixef(m.dwellTime.transition)['GEB.est'], 2)`.
+
+```{r}
+#| label: fig-m.dwellTime.transition
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental choice depending on
+#|   the relative dwell time on carbon information.
+
+p.dwellTime.transition.svs <- sjPlot::plot_model(
+  model = m.dwellTime.transition,
+  type = "eff",
+  terms = "svs_biospheric",
+  color = "black",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
+p.dwellTime.transition.geb <- sjPlot::plot_model(
+  model = m.dwellTime.transition,
+  type = "eff",
+  terms = "GEB.est",
+  color = "black",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
+ggarrange(
+  p.dwellTime.transition.svs,
+  p.dwellTime.transition.geb,
+  ncol = 2,
+  labels = c("A", "B")
+)
+```
+
+### Decision by SVS and Transitions
+
+#### Pilot Data
+
+We predict pro-environmental decisions (`proenv_decision`) by pro-environmental attitudes as assessed by the SVS biospheric (`svs_biospheric`) and number of transistions between carbon and bonus information (`nb_transition`) with random intercept for participants (`ORSEE_code`) and items (`trial_id`):
+
+$$
+\begin{split}
+  proenv\_decision \sim svs\_biospheric + nb\_transition \, + \\
+  (1 | ORSEE\_code) + (1 | trial\_id)
+\end{split}
+$$ {#eq-m.decision.attitudesTransition}
+
+We then add the interaction term `svs_biospheric * nb_transition`:
+
+$$
+\begin{split}
+  proenv\_decision \sim svs\_biospheric + nb\_transition \, + \\
+  svs\_biospheric \cdot  nb\_transition + (1 | ORSEE\_code) + (1 | trial\_id)
+\end{split}
+$$ {#eq-m.decision.attitudesTransitionInteraction}
+
+Modelling decisions according to @eq-m.decision.attitudesTransition and @eq-m.decision.attitudesTransitionInteraction yields:
+
+```{r}
+#| label: res-m.decision.attitudesTransition
+
+# estimate model with main effects
+m.decision.attitudesTransition <- lme4::glmer(
+  formula = proenv_decision ~ svs_biospheric_scaled + nb_transition_scaled +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot,
+  family = binomial(link = "logit")
+)
+
+# estimate model with interaction effect
+m.decision.attitudesTransitionInteraction <- lme4::glmer(
+  formula = proenv_decision ~ svs_biospheric_scaled * nb_transition_scaled +
+    (1 | ORSEE_code) + (1 | trial_id),
+  data = data_pilot,
+  family = binomial(link = "logit")
+)
+
+# print results (show log-odds and not odds ratio)
+sjPlot::tab_model(
+  m.decision.attitudesTransition,
+  m.decision.attitudesTransitionInteraction,
+  transform = NULL
+)
+```
+
+As displayed in @fig-m.decision.attitudesTransitionInteraction, the negative effect of number of transitions between carbon and bonus information on pro-environmental decisions tends to be weaker among participants that score lower in pro-environmental attitudes as assessed by SVS Biospheric. This is also reflected in the negative log-odds estimate of the interaction term (`r round(fixef(m.decision.attitudesTransitionInteraction)['svs_biospheric_scaled:nb_transition_scaled'], 2)`). For an alternative (but statistically equivalent) visualization, see @fig-m.decision.attitudesTransitionInteraction-xAttitudes, suggesting the interpretation that the positive effect of pro-environmental attitudes on pro-environmental decisions is stronger among participants that transition less between carbon and bonus information (e.g., strategic pro-environmental deliberate ignorance to not become tempted to act selfishly?)
+
+```{r}
+#| label: fig-m.decision.attitudesTransitionInteraction
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental choice depending on
+#|   the pro-environmental attitude assessed by the SVS biospheric
+#|   and the number of transitions between carbon and bonus information.
+
+sjPlot::plot_model(
+  model = m.decision.attitudesTransitionInteraction,
+  type = "pred",
+  terms = c("nb_transition_scaled[all]", "svs_biospheric_scaled"),
+  mdrt.values = "meansd",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+```{r}
+#| label: fig-m.decision.attitudesTransitionInteraction-xAttitudes
+#| fig-cap: |
+#|   Predicted probability of making a pro-environmental choice depending on
+#|   the pro-environmental attitude assessed by the SVS biospheric
+#|   and the number of transitions between carbon and bonus information. 
+#|   In contrast to @fig-m.decision.attitudesTransitionInteraction, attitudes
+#|   are displayed on the x-axis, visualizing the implication that the 
+#|   effect of pro-environmental attitudes on pro-environmental choice is 
+#|   moderated by attention.
+
+sjPlot::plot_model(
+  model = m.decision.attitudesTransitionInteraction,
+  type = "pred",
+  terms = c("svs_biospheric_scaled[all]", "nb_transition_scaled"),
+  # mdrt.values = "meansd",
+  alpha = 0
+) +
+  theme_bw() +
+  theme(
+    plot.title = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+```
+
+#### Power Simulations
+
+@fig-p.powC.decision.attitudesTransition displays the power curve for the main effect of the number of transitions between carbon and bonus information on pro-environmental decisions, controlling for pro-environmental attitudes assessed by SVS Biospheric (@eq-m.decision.attitudesTransition). The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.decision.attitudesTransition)['nb_transition_scaled'], 4)` (log-odds).
+
+The figure shows that a sample size of 100 participants would achieve 95% power to detect a true effect size that is equal to the one estimated in the pilot data.
+
+```{r}
+#| label: prep-fig-p.powC.decision.attitudesTransition
+#| eval: false
+
+# number of simulations
+nSims <- 5
+
+# extend mDecision to include 
+m.powC.decision.attitudesTransition <- simr::extend(
+  m.decision.attitudesTransition,
+  along = "ORSEE_code",
+  n = 1000
+)
+
+# create a power curve data set
+powC.decision.attitudesTransition <- simr::powerCurve(
+  fit = m.powC.decision.attitudesTransition,
+  test = fixed(xname = "nb_transition_scaled", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, 30, seq(60, 160, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.decision.attitudesTransition", "_", time, ".RData")
+
+save(
+  m.powC.decision.attitudesTransition,
+  powC.decision.attitudesTransition,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.decision.attitudesTransition
+#| fig-cap: |
+#|   Power curve for main effect of the number of transitions between
+#|   carbon and bonus information on pro-environmental decisions, controlling for
+#|   pro-environmental attitudes (SVS Biospheric).
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.decision.attitudesTransition_20240405_1645.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.decision.attitudesTransition <- summary(powC.decision.attitudesTransition) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.decision.attitudesTransition)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+p.powC.decision.attitudesTransition
+```
+
+@fig-p.powC.decision.attitudesTransitionInteraction displays the power curve for the interaction effect of pro-environmental attitudes assessed by SVS Biospheric and the number of transitions between carbon and bonus information in predicting pro-environmental decisions (@eq-m.decision.attitudesTransitionInteraction). The curve is based on an expected effect size that is equal to the observed effect size in the pilot data = `r round(fixef(m.decision.attitudesTransitionInteraction)['svs_biospheric_scaled:nb_transition_scaled'], 4)` (log-odds).
+
+The figure shows that a sample size of 100 participants would achieve 95% power to detect a true effect size that is equal to the one estimated in the pilot data.
+
+```{r}
+#| label: prep-fig-p.powC.decision.attitudesTransitionInteraction
+#| eval: false
+
+# number of simulations
+nSims <- 5
+
+# extend mDecision to include 
+m.powC.decision.attitudesTransitionInteraction <- simr::extend(
+  m.decision.attitudesTransitionInteraction,
+  along = "ORSEE_code",
+  n = 1000
+)
+
+# create a power curve data set
+powC.decision.attitudesTransitionInteraction <- simr::powerCurve(
+  fit = m.powC.decision.attitudesTransitionInteraction,
+  test = fixed(xname = "svs_biospheric_scaled:nb_transition_scaled", method = "z"),
+  along = "ORSEE_code",
+  breaks = c(15, 30, seq(60, 160, 20)),
+  nsim = nSims,
+  progress = TRUE
+)
+
+# save simulation results in a data frame
+time <- format(Sys.time(), "%Y%m%d_%H%M")
+fileName <- paste0("powC.decision.attitudesTransitionInteraction", "_", time, ".RData")
+
+save(
+  m.powC.decision.attitudesTransitionInteraction,
+  powC.decision.attitudesTransitionInteraction,
+  file = file.path("../data/CETEyeTracking/simr", fileName)
+)
+```
+
+```{r}
+#| label: fig-p.powC.decision.attitudesTransitionInteraction
+#| fig-cap: |
+#|   Power curve for interaction effect of pro-environmental attitudes 
+#|   (SVS Biospheric) and number of transitions between carbon and bonsu information
+#|   on pro-environmental decisions.
+
+# load stored simulations (change file name if necessary)
+fileName <- "powC.decision.attitudesTransitionInteraction_20240405_1233.RData"
+load(file.path("../data/CETEyeTracking/simr", fileName))
+
+# create and display plot
+p.powC.decision.attitudesTransitionInteraction <- summary(powC.decision.attitudesTransitionInteraction) %>% 
+  ggplot(aes(
+    x = nlevels,
+    y = mean,
+    ymin = lower,
+    ymax = upper
+  )) +
+  geom_ribbon(fill = "grey94", alpha = .8) +
+  geom_errorbar(color = "grey40", width = 1.5) +
+  geom_line(color = "black") +
+  geom_point() +
+  geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+  scale_x_continuous(breaks = summary(powC.decision.attitudesTransitionInteraction)$nlevels) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    breaks = seq(0, 1, .05),
+    labels = paste0(seq(0, 100, 5), "%")
+  ) +
+  labs(
+    x = "Number of Participants",
+    y = "Power"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+p.powC.decision.attitudesTransitionInteraction
+```

@@ -13,6 +13,8 @@ website:
         text: Presentation
       - href: scripts/EcoTRACEPowerAnalysis_report.qmd
         text: Power Analysis EcoTRACE
+      - href: scripts/CETEyeTrackingPowerAnalysis_report.qmd
+        text: Power Analysis CET Eye-Tracking
       
 
 format:
