@@ -1,0 +1,509 @@
+---
+title: "Simulating Data for Power Analyses"
+subtitle: "Presentation for SNS Retreat 2024"
+author: "Emmanuel Guizar Rosales"
+date-format: "[last rendered on:] MMM D, YYYY"
+format: 
+  revealjs: 
+    toc: false
+    toc-depth: 3
+    slide-number: true
+    number-sections: false
+    smaller: true
+    scrollable: true
+    incremental: true
+    code-fold: true
+    code-annotations: hover
+    theme: serif
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup
+
+# install package librarian if needed
+if (!("librarian" %in% rownames(installed.packages()))) {
+  install.packages("librarian")
+}
+
+# load required packages
+librarian::shelf(
+  tidyverse,
+  faux,
+  lme4,
+  lmerTest,
+  ggdist,
+  sjPlot,
+  DT,
+  broom.mixed,
+  BlakeRMills/MetBrewer,
+  simr
+)
+```
+
+# Introduction
+
+## Statistical Power
+
+-   **Definition of Statistical Power**
+    -   Statistical power is the probability that a test will correctly reject a false null hypothesis (i.e., detect an effect when there is one).
+    -   It is usually denotes as $1-\beta$, where $\beta$ is the Type II error rate ( the probability of failing to reject a false null hypothesis).
+-   **Importance of Statistical Power**
+    -   High power reduces the risk of Type II errors.
+    -   Ensures that studies are capable of detecting meaningful effects.
+    -   Important for the credibility and reliability of research findings.
+
+## Factors Affecting Statistical Power (1/2)
+
+-   **Sample Size**
+    -   Larger sample sizes increase power.
+    -   Practical considerations: resources, time, and feasibility.
+-   **Effect Size**
+    -   Larger effect sizes are easier to detect, leading to higher power.
+    -   Different effect sizes exist for different types of analyses. Many of them can be converted between each other. [(Effect size converter)](https://www.escal.site/){preview-link="true"}
+
+## Factors Affecting Statistical Power (2/2)
+
+-   **Significance Level (**$\alpha$)
+    -   Commonly set at 0.05, but lower alpha values (e.g., 0.01) reduce power.
+    -   Trade-off between Type I error (false positive) and Type II error (false negative).
+-   **Variance**
+    -   Lower variance within data increases power.
+    -   Methods to reduce variance include controlling for confounding variables and improving measurement precision.
+
+## Power Analysis (1/2)
+
+-   **Purpose of Power Analysis**
+    -   Determine the sample size needed to achieve a desired power level for detecting a given effect size.
+    -   Can be conducted before (a priori) or after (post hoc) a study.
+-   **Steps in Conducting Power Analysis**
+    -   Define the significance level (α).
+    -   Estimate the effect size (based on literature or pilot studies).
+    -   Choose the desired power level (traditionally 80%, more recently: 90% or 95%).
+    -   Whenever possible, use power analysis tools/software (e.g., G\*Power, R) to calculate the required sample size (much easier).
+
+## Power Analyses (2/2)
+
+-   **Types of Power Analysis**
+    -   *A priori*: Conducted before data collection to ensure adequate sample size.
+    -   *Post hoc*: Conducted after the study to determine the achieved power, often used for interpreting non-significant results.
+    -   *Sensitivity analysis*: Determines the smallest effect size that can be detected with a given sample size and power.
+
+## Power Analyses and Simulations
+
+-   Not every power analysis requires simulations
+
+-   For simple cases like t-tests, ANOVAs, correlations, multiple regressions, etc. there are **analytical** solutions for calculating power analyses (e.g., [G\*Power](https://www.psychologie.hhu.de/arbeitsgruppen/allgemeine-psychologie-und-arbeitspsychologie/gpower){preview-link="true"})
+
+-   For more complex study designs, analytical solutions are difficult or impossible (e.g., situations with multiple interacting factors, non-standard distributions or assumptions, missing data...)
+
+-   Focus on **multi-level models**: analytical solutions for power analyses are too complex (or have not even been derived yet).\
+    → **Simulations**
+
+# Excursus: Multi-Level Models
+
+## Multi-Level Models (1/4)
+
+-   Alternative Terms
+
+    -   Multi-level models = hierarchical linear models (HLM) = mixed-effects models
+    -   Multi-level models ≠ hierarchical regression
+
+-   **Multi-level models have superior power (over, e.g., t-test with data aggregated over trials) when analyzing data that has a nested or hierarchical structure.**
+
+-   These models account for the fact that data points within groups are often more similar to each other than to data points in other groups.
+
+## Multi-Level Models (2/4)
+
+-   Benefits
+    -   **Correct Standard Errors:** Multi-level models account for the non-independence of observations within clusters, providing more accurate standard errors and significance tests.
+    -   **Partitioning Variance:** They allow for the partitioning of variance at different levels (e.g., variance between individuals, within individuals, between trials, ...), helping to identify where variability in the outcome lies.
+    -   **Modeling Complex Relationships:** These models can include fixed effects (constant, average effect of an explanatory variable on the outcome) and random effects (account for variability across different levels in the data).
+
+## Multi-Level Models (3/4)
+
+-   Typical examples in psychology:
+    -   Nested data structures: Students nested within schools (educational psychology, clinical psychology, cultural differences research, etc.)
+
+    -   Repeated measures: Participants complete multiple trials which differ in some attributes.\
+        E.g., participants complete 25 trials which differ in the combination of bonus and carbon outcomes.
+
+## Multi-Level Models (4/4)
+
+[![](https://bookdown.org/steve_midway/DAR/images/07_models.png){fig-alt="Fixed effect, mixed effects, and random effects linear regression models." fig-align="center" width="790"}](https://bookdown.org/steve_midway/DAR/random-effects.html#types-of-models-with-random-effects)
+
+# Simulate Data to Conduct Power Analyses
+
+## Power Simulations
+
+1.  Think about the **Data Generating Process** (also very useful on a conceptual level!)
+
+2.  Define the parameters:
+
+    1.  sample sizes (subjects, trials),
+
+    2.  sizes for fixed and random effects (including residual (error) variance)
+
+    3.  significance level
+
+3.  Generate a data set using the Data Generating Process
+
+4.  Analyse the data set (fit your model to the data) and store the p value of your effect(s) of interest.
+
+5.  Repeat steps 3 and 4 for a sufficient number of times (e.g., 1000 iterations).
+
+6.  Count the number of analyses with significant results (true positives) and divide it by the total number of analyses (i.e., iterations) = **Power**
+
+## Example: EcoTRACE Project
+
+-   **Primary Question:**\
+    Does political orientation affect how individual search for, process, and integrate information during climate-relevant decision-making? (process-tracing measures as dependent variables)
+
+-   **Secondary Questions:**\
+    Do the occurrence of extreme weather events and participants' attribution of such events to climate change moderate the effect of political orientation on process-tracing measures?
+
+-   **Methods**
+
+    -   Online process-tracing using mouselabWEB ([Try EcoTRACE](http://localhost/EcoTRACE_06/XX_startPage.php?subject=S001&condnum=0){preview-link="true"})
+
+    -   Representative US sample (total N = 1'100)
+
+    -   [Storm events database](https://www.ncdc.noaa.gov/stormevents/){preview-link="true"}: detailed record of extreme weather events on US county level
+
+## Challenge
+
+-   Conduct an *a priori* power analysis for planning and preregistering the study **without pilot data** (→ Simulations)
+
+-   **Main Question:**\
+    How many participants and trials do we need to reach 95% power to detect the smallest effect size of interest (SESOI)?
+
+-   **Follow up question:**\
+    How do different parameters affect the power to detect the SESOI?
+
+    -   Number of participants
+
+    -   Number of trials
+
+    -   SESOI
+
+    -   Random effects (intercepts and slopes)
+
+    -   Noise in the data
+
+## Data Generating Process (1/2)
+
+-   Primary question: *Does participants' political orientation affect how much time they spend gathering information regarding carbon relative to bonus outcomes of their choice?*\
+    \
+    $$
+    \Delta Duration = \frac{(t_{A\_Carbon} + t_{B\_Carbon}) - (t_{A\_Bonus} + t_{B\_Bonus})}{t_{A\_Carbon} + t_{B\_Carbon} + t_{A\_Bonus} + t_{B\_Bonus}}
+    $$
+
+-   Simpler question: *Does participants' political orientation affect how much time they spend on gathering information regarding carbon outcomes of their choice?*\
+    ($t_{A\_Carbon} + t_{B\_Carbon}$)
+
+## Excursus: Faux
+
+::: nonincremental
+Very helpful package for everything related to data simulation: [faux](https://debruine.github.io/faux/){preview-link="true"}
+
+::: panel-tabset
+### `add_random()`
+
+```{r}
+#| label: faux_addRandom
+#| echo: true
+#| code-fold: false
+
+# 
+add_random(subj = 4, trial = 2) # <1>
+```
+
+1.  Generate data fully crossing 4 subjects with 2 trials each.
+
+### `add_between()`
+
+```{r}
+#| label: faux_addBetween
+#| echo: true
+#| code-fold: false
+#| code-line-numbers: "2-3"
+
+add_random(subj = 4, trial = 2) %>% 
+  add_between("subj", polOri = c("rep", "dem"), .prob = 4*c(.5, .5), .shuffle = FALSE) %>%  # <1>
+  add_contrast("polOri", contrast = "anova") #<2>
+```
+
+1.  Add a between subjects factor political orientation with levels "rep" and "dem". Both levels should be assigned with equal probability. The levels should not be shuffled.
+2.  ANOVA-contrast-code the factor polOri (so that the intercept will indicate the grand mean).
+
+<!-- ### `add_within()` -->
+
+<!-- ```{r} -->
+
+<!-- #| label: faux_addWithin -->
+
+<!-- #| echo: true -->
+
+<!-- #| code-fold: false -->
+
+<!-- #| code-line-numbers: "3" -->
+
+<!-- add_random(subj = 4, trial = 2) %>%  -->
+
+<!--   add_between("subj", polOri = c("rep", "dem"), .prob = 4*c(.5, .5), .shuffle = FALSE) %>%  -->
+
+<!--   add_within("subj", levelTemptation = c("easy", "hard")) # <1> -->
+
+<!-- ``` -->
+
+<!-- 1. Add a factor within sujects that asigns a temptetion level for each trial. -->
+
+### `add_ranef()`
+
+```{r}
+#| label: faux_addRanef
+#| echo: true
+#| code-fold: false
+#| code-line-numbers: "4-6"
+
+add_random(subj = 4, trial = 2) %>% 
+  add_between("subj", polOri = c("rep", "dem"), .prob = 4*c(.5, .5), .shuffle = FALSE) %>% 
+  add_contrast("polOri", contrast = "anova") %>% 
+  add_ranef("subj", bySubjectRandomIntercept = 2) %>% # <1>
+  add_ranef("trial", byTrialRandomIntercept = 1) %>% # <2>
+  add_ranef(error = 0.5) # <3>
+```
+
+1.  Add the by-subject random intercept with a SD = 2 (normally distributed).
+2.  Add the by-trial random intercept with a SD = 1 (normally distributed).
+3.  Add a random residual (error) with SD = 0.5 (normally distributed).
+
+### calculate DV
+
+Formula: `dv ~ polOri + (1|subj) + (1|trial)`
+
+```{r}
+#| label: faux_calculateDV
+#| echo: true
+#| code-fold: false
+#| code-line-numbers: "10-15"
+#| output: false
+
+fixedEff_intercept <- 8
+fixedEff_polOri <- 0.5
+
+add_random(subj = 4, trial = 2) %>% 
+  add_between("subj", polOri = c("rep", "dem"), .prob = 4*c(.5, .5), .shuffle = FALSE) %>% 
+  add_contrast("polOri", contrast = "anova") %>% 
+  add_ranef("subj", bySubjectRandomIntercept = 2) %>%
+  add_ranef("trial", byTrialRandomIntercept = 1) %>%
+  add_ranef(error = 0.5) %>% 
+  mutate(
+    dv = 
+      fixedEff_intercept + bySubjectRandomIntercept + byTrialRandomIntercept + # <1>
+      fixedEff_polOri * `polOri.dem-rep` + # <2>
+      error # <3>
+  )
+```
+
+1.  Add fixed and random intercepts.
+2.  Add fixed effect of polOri.
+3.  Add random error term.
+:::
+:::
+
+## Data Generating Process (2/2)
+
+```{r}
+#| label: dataGeneratingProcess
+#| echo: true
+#| code-fold: false
+
+# define data simulation function
+FUN_sim_dtCarbon <- function(
+  n_subj       =         50, # number of subjects
+  n_subj_prop  =  c(.5, .5), # proportion of republican and democrat subjects
+  n_trial      =         25, # number of trials
+  beta_0       =        3.5, # intercept (grand mean) for dwell time (dt) carbon
+  beta_p       =        .10, # effect of political orientation on dt carbon
+  subj_0       =        .50, # by-subject random intercept sd for dt carbon
+  trial_0      =        .50, # by-trial random intercept sd
+  sigma        =        .10, # residual (error) sd
+  
+  truncNegNums =       TRUE # should negative number be truncuated at zero?
+) {
+  
+  # simulate data for dwell time on carbon information
+  dataSim <- 
+    # add random factor subject
+    add_random(subj = n_subj) %>%
+    # add random factor trial
+    add_random(trial = n_trial) %>%
+    # add between-subject factor political orientation (with anova contrast)
+    add_between("subj", polOri = c("rep", "dem"), .prob = n_subj_prop*n_subj, .shuffle = FALSE) %>% 
+    add_contrast("polOri", colnames = "X_p", contrast = "anova") %>% 
+    # add by-subject random intercept
+    add_ranef("subj", S_0 = subj_0) %>% 
+    # add by-trial random intercept
+    add_ranef("trial", T_0 = trial_0) %>% 
+    # add error term
+    add_ranef(e_st = sigma) %>% 
+    # add response values
+    mutate(
+      # add together fixed and random effects for each effect
+      B_0 = beta_0 + S_0 + T_0,
+      B_p = beta_p,
+      # calculate dv by adding each effect term multiplied by the relevant
+      # effect-coded factors and adding the error term
+      dwellTime = B_0 + (B_p * X_p) + e_st
+    )
+  
+  # truncuate negative dwell times
+  if(truncNegNums) {
+    dataSim <- dataSim %>% 
+      mutate(dwellTime = if_else(dwellTime < 0, 0, dwellTime))
+  }
+  
+  # run a linear mixed effects model
+  mod <- lmer(
+    dwellTime ~ polOri + (1 | subj) + (1 | trial),
+    data = dataSim
+  )
+  
+  # get results in tidy format
+  mod.broom <- broom.mixed::tidy(mod)
+  
+  return(list(
+    dataSim = dataSim,
+    modelLmer = mod,
+    modelResults = mod.broom
+  ))
+  
+}
+```
+
+```{r}
+#| label: dataGeneratingProcess_callFunction
+
+# call the function
+out_FUN_sim_dtCarbon <- FUN_sim_dtCarbon(
+  n_subj       =         50, # number of subjects
+  n_subj_prop  =  c(.5, .5), # proportion of republican and democrat subjects
+  n_trial       =        25, # number of trials
+  beta_0     =          3.5, # intercept (grand mean) for dwell time (dt) carbon
+  beta_p     =          .20, # effect of political orientation on dt carbon
+  subj_0     =          .50, # by-subject random intercept sd for dt carbon
+  trial_0    =          .50, # by-trial random intercept sd
+  sigma     =           .10, # residual (error) sd
+  
+  truncNegNums =       TRUE # should negative number be truncuated at zero?
+)
+```
+
+## Data Simulation (1/2)
+
+::: panel-tabset
+### dataSim
+
+```{r}
+#| label: dataSimulation_results1
+
+tmp <- out_FUN_sim_dtCarbon$dataSim
+tmp %>% 
+  datatable(
+    options = list(pageLength = 5)
+  ) %>% 
+  formatRound(columns = names(tmp)[sapply(tmp, is.numeric)], digits = 2)
+```
+
+### modelResults
+
+```{r}
+#| label: dataSimulation_results2
+
+tmp <- out_FUN_sim_dtCarbon$modelResults
+tmp %>% 
+  datatable() %>% 
+  formatRound(columns = names(tmp)[sapply(tmp, is.numeric)], digits = 2)
+```
+:::
+
+## Data Simulation (2/2)
+
+Remember: We repeat the simulation of a data set a sufficient number of times (10 iterations in this example).
+
+::: nonincremental
+::: panel-tabset
+### Code
+
+```{r}
+#| label: dataSimulation_iteration
+#| echo: true
+#| code-fold: false
+#| code-line-numbers: "8-9"
+
+FUN_powerSim <- function(rep) {
+  sim <- FUN_sim_dtCarbon()$modelResults
+  sim %>% 
+    filter(term == "polOri.dem-rep") %>% 
+    mutate(simulation = rep)
+}
+
+n_simulations <- 10
+allSimulations <- map_df(1:n_simulations, FUN_powerSim) #<1>
+```
+
+1.  Apply the same function `n_simulations` times.
+
+### Results
+
+```{r}
+#| label: dataSimulation_results3
+
+tmp <- allSimulations
+tmp %>% 
+  datatable(
+    options = list(pageLength = 3)
+  ) %>% 
+  formatRound(columns = names(tmp)[sapply(tmp, is.double)], digits = 3) %>% 
+  formatStyle(columns = colnames(.), fontSize = "50%")
+```
+
+### Power
+
+Remember: **Power** = number of significant results divided by number of all simulations.
+
+We can calculate power as follows:
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+
+res <- allSimulations %>% 
+  select(simulation, p.value) %>% 
+  mutate(significant = if_else(p.value < 0.05, 1, 0))
+res
+```
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+
+sum(res$significant)/length(res$significant)
+```
+
+Equivalent but more elegant:
+
+```{r}
+#| echo: true
+#| code-fold: false
+
+
+mean(allSimulations$p.value < 0.05)
+```
+:::
+:::

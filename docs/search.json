@@ -12,5 +12,131 @@
     "title": "DataAndPowerSimulations",
     "section": "",
     "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#statistical-power",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#statistical-power",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Statistical Power",
+    "text": "Statistical Power\n\nDefinition of Statistical Power\n\nStatistical power is the probability that a test will correctly reject a false null hypothesis (i.e., detect an effect when there is one).\nIt is usually denotes as \\(1-\\beta\\), where \\(\\beta\\) is the Type II error rate ( the probability of failing to reject a false null hypothesis).\n\nImportance of Statistical Power\n\nHigh power reduces the risk of Type II errors.\nEnsures that studies are capable of detecting meaningful effects.\nImportant for the credibility and reliability of research findings."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#factors-affecting-statistical-power-12",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#factors-affecting-statistical-power-12",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Factors Affecting Statistical Power (1/2)",
+    "text": "Factors Affecting Statistical Power (1/2)\n\nSample Size\n\nLarger sample sizes increase power.\nPractical considerations: resources, time, and feasibility.\n\nEffect Size\n\nLarger effect sizes are easier to detect, leading to higher power.\nDifferent effect sizes exist for different types of analyses. Many of them can be converted between each other. (Effect size converter)"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#factors-affecting-statistical-power-22",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#factors-affecting-statistical-power-22",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Factors Affecting Statistical Power (2/2)",
+    "text": "Factors Affecting Statistical Power (2/2)\n\nSignificance Level (\\(\\alpha\\))\n\nCommonly set at 0.05, but lower alpha values (e.g., 0.01) reduce power.\nTrade-off between Type I error (false positive) and Type II error (false negative).\n\nVariance\n\nLower variance within data increases power.\nMethods to reduce variance include controlling for confounding variables and improving measurement precision."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#power-analysis-12",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#power-analysis-12",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Power Analysis (1/2)",
+    "text": "Power Analysis (1/2)\n\nPurpose of Power Analysis\n\nDetermine the sample size needed to achieve a desired power level for detecting a given effect size.\nCan be conducted before (a priori) or after (post hoc) a study.\n\nSteps in Conducting Power Analysis\n\nDefine the significance level (α).\nEstimate the effect size (based on literature or pilot studies).\nChoose the desired power level (traditionally 80%, more recently: 90% or 95%).\nWhenever possible, use power analysis tools/software (e.g., G*Power, R) to calculate the required sample size (much easier)."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#power-analyses-22",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#power-analyses-22",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Power Analyses (2/2)",
+    "text": "Power Analyses (2/2)\n\nTypes of Power Analysis\n\nA priori: Conducted before data collection to ensure adequate sample size.\nPost hoc: Conducted after the study to determine the achieved power, often used for interpreting non-significant results.\nSensitivity analysis: Determines the smallest effect size that can be detected with a given sample size and power."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#power-analyses-and-simulations",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#power-analyses-and-simulations",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Power Analyses and Simulations",
+    "text": "Power Analyses and Simulations\n\nNot every power analysis requires simulations\nFor simple cases like t-tests, ANOVAs, correlations, multiple regressions, etc. there are analytical solutions for calculating power analyses (e.g., G*Power)\nFor more complex study designs, analytical solutions are difficult or impossible (e.g., situations with multiple interacting factors, non-standard distributions or assumptions, missing data…)\nFocus on multi-level models: analytical solutions for power analyses are too complex (or have not even been derived yet).\n→ Simulations"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-14",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-14",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Multi-Level Models (1/4)",
+    "text": "Multi-Level Models (1/4)\n\nAlternative Terms\n\nMulti-level models = hierarchical linear models (HLM) = mixed-effects models\nMulti-level models ≠ hierarchical regression\n\nMulti-level models have superior power (over, e.g., t-test with data aggregated over trials) when analyzing data that has a nested or hierarchical structure.\nThese models account for the fact that data points within groups are often more similar to each other than to data points in other groups."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-24",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-24",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Multi-Level Models (2/4)",
+    "text": "Multi-Level Models (2/4)\n\nBenefits\n\nCorrect Standard Errors: Multi-level models account for the non-independence of observations within clusters, providing more accurate standard errors and significance tests.\nPartitioning Variance: They allow for the partitioning of variance at different levels (e.g., variance between individuals, within individuals, between trials, …), helping to identify where variability in the outcome lies.\nModeling Complex Relationships: These models can include fixed effects (constant, average effect of an explanatory variable on the outcome) and random effects (account for variability across different levels in the data)."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-34",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-34",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Multi-Level Models (3/4)",
+    "text": "Multi-Level Models (3/4)\n\nTypical examples in psychology:\n\nNested data structures: Students nested within schools (educational psychology, clinical psychology, cultural differences research, etc.)\nRepeated measures: Participants complete multiple trials which differ in some attributes.\nE.g., participants complete 25 trials which differ in the combination of bonus and carbon outcomes."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-44",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#multi-level-models-44",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Multi-Level Models (4/4)",
+    "text": "Multi-Level Models (4/4)"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#power-simulations",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#power-simulations",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Power Simulations",
+    "text": "Power Simulations\n\nThink about the Data Generating Process (also very useful on a conceptual level!)\nDefine the parameters:\n\nsample sizes (subjects, trials),\nsizes for fixed and random effects (including residual (error) variance)\nsignificance level\n\nGenerate a data set using the Data Generating Process\nAnalyse the data set (fit your model to the data) and store the p value of your effect(s) of interest.\nRepeat steps 3 and 4 for a sufficient number of times (e.g., 1000 iterations).\nCount the number of analyses with significant results (true positives) and divide it by the total number of analyses (i.e., iterations) = Power"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#example-ecotrace-project",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#example-ecotrace-project",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Example: EcoTRACE Project",
+    "text": "Example: EcoTRACE Project\n\nPrimary Question:\nDoes political orientation affect how individual search for, process, and integrate information during climate-relevant decision-making? (process-tracing measures as dependent variables)\nSecondary Questions:\nDo the occurrence of extreme weather events and participants’ attribution of such events to climate change moderate the effect of political orientation on process-tracing measures?\nMethods\n\nOnline process-tracing using mouselabWEB (Try EcoTRACE)\nRepresentative US sample (total N = 1’100)\nStorm events database: detailed record of extreme weather events on US county level"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#challenge",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#challenge",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Challenge",
+    "text": "Challenge\n\nConduct an a priori power analysis for planning and preregistering the study without pilot data (→ Simulations)\nMain Question:\nHow many participants and trials do we need to reach 95% power to detect the smallest effect size of interest (SESOI)?\nFollow up question:\nHow do different parameters affect the power to detect the SESOI?\n\nNumber of participants\nNumber of trials\nSESOI\nRandom effects (intercepts and slopes)\nNoise in the data"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#data-generating-process-12",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#data-generating-process-12",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Data Generating Process (1/2)",
+    "text": "Data Generating Process (1/2)\n\nPrimary question: Does participants’ political orientation affect how much time they spend gathering information regarding carbon relative to bonus outcomes of their choice?\n\n\\[\n\\Delta Duration = \\frac{(t_{A\\_Carbon} + t_{B\\_Carbon}) - (t_{A\\_Bonus} + t_{B\\_Bonus})}{t_{A\\_Carbon} + t_{B\\_Carbon} + t_{A\\_Bonus} + t_{B\\_Bonus}}\n\\]\nSimpler question: Does participants’ political orientation affect how much time they spend on gathering information regarding carbon outcomes of their choice?\n(\\(t_{A\\_Carbon} + t_{B\\_Carbon}\\))"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#excursus-faux",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#excursus-faux",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Excursus: Faux",
+    "text": "Excursus: Faux\n\nVery helpful package for everything related to data simulation: faux\n\nadd_random()add_between()add_ranef()calculate DV\n\n\n\n# \n1add_random(subj = 4, trial = 2)\n\n\n1\n\nGenerate data fully crossing 4 subjects with 2 trials each.\n\n\n\n\n# A tibble: 8 × 2\n  subj  trial \n  &lt;chr&gt; &lt;chr&gt; \n1 subj1 trial1\n2 subj1 trial2\n3 subj2 trial1\n4 subj2 trial2\n5 subj3 trial1\n6 subj3 trial2\n7 subj4 trial1\n8 subj4 trial2\n\n\n\n\n\nadd_random(subj = 4, trial = 2) %&gt;% \n1  add_between(\"subj\", polOri = c(\"rep\", \"dem\"), .prob = 4*c(.5, .5), .shuffle = FALSE) %&gt;%\n2  add_contrast(\"polOri\", contrast = \"anova\")\n\n\n1\n\nAdd a between subjects factor political orientation with levels “rep” and “dem”. Both levels should be assigned with equal probability. The levels should not be shuffled.\n\n2\n\nANOVA-contrast-code the factor polOri (so that the intercept will indicate the grand mean).\n\n\n\n\n# A tibble: 8 × 4\n  subj  trial  polOri `polOri.dem-rep`\n  &lt;chr&gt; &lt;chr&gt;  &lt;fct&gt;             &lt;dbl&gt;\n1 subj1 trial1 rep                -0.5\n2 subj1 trial2 rep                -0.5\n3 subj2 trial1 rep                -0.5\n4 subj2 trial2 rep                -0.5\n5 subj3 trial1 dem                 0.5\n6 subj3 trial2 dem                 0.5\n7 subj4 trial1 dem                 0.5\n8 subj4 trial2 dem                 0.5\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nadd_random(subj = 4, trial = 2) %&gt;% \n  add_between(\"subj\", polOri = c(\"rep\", \"dem\"), .prob = 4*c(.5, .5), .shuffle = FALSE) %&gt;% \n  add_contrast(\"polOri\", contrast = \"anova\") %&gt;% \n1  add_ranef(\"subj\", bySubjectRandomIntercept = 2) %&gt;%\n2  add_ranef(\"trial\", byTrialRandomIntercept = 1) %&gt;%\n3  add_ranef(error = 0.5)\n\n\n1\n\nAdd the by-subject random intercept with a SD = 2 (normally distributed).\n\n2\n\nAdd the by-trial random intercept with a SD = 1 (normally distributed).\n\n3\n\nAdd a random residual (error) with SD = 0.5 (normally distributed).\n\n\n\n\n# A tibble: 8 × 7\n  subj  trial  polOri `polOri.dem-rep` bySubjectRandomIntercept\n  &lt;chr&gt; &lt;chr&gt;  &lt;fct&gt;             &lt;dbl&gt;                    &lt;dbl&gt;\n1 subj1 trial1 rep                -0.5                   -1.61 \n2 subj1 trial2 rep                -0.5                   -1.61 \n3 subj2 trial1 rep                -0.5                   -2.70 \n4 subj2 trial2 rep                -0.5                   -2.70 \n5 subj3 trial1 dem                 0.5                   -0.808\n6 subj3 trial2 dem                 0.5                   -0.808\n7 subj4 trial1 dem                 0.5                    1.84 \n8 subj4 trial2 dem                 0.5                    1.84 \n# ℹ 2 more variables: byTrialRandomIntercept &lt;dbl&gt;, error &lt;dbl&gt;\n\n\n\n\nFormula: dv ~ polOri + (1|subj) + (1|trial)\n\nfixedEff_intercept &lt;- 8\nfixedEff_polOri &lt;- 0.5\n\nadd_random(subj = 4, trial = 2) %&gt;% \n  add_between(\"subj\", polOri = c(\"rep\", \"dem\"), .prob = 4*c(.5, .5), .shuffle = FALSE) %&gt;% \n  add_contrast(\"polOri\", contrast = \"anova\") %&gt;% \n  add_ranef(\"subj\", bySubjectRandomIntercept = 2) %&gt;%\n  add_ranef(\"trial\", byTrialRandomIntercept = 1) %&gt;%\n  add_ranef(error = 0.5) %&gt;% \n  mutate(\n    dv = \n1      fixedEff_intercept + bySubjectRandomIntercept + byTrialRandomIntercept +\n2      fixedEff_polOri * `polOri.dem-rep` +\n3      error\n  )\n\n\n1\n\nAdd fixed and random intercepts.\n\n2\n\nAdd fixed effect of polOri.\n\n3\n\nAdd random error term."
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#data-generating-process-22",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#data-generating-process-22",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Data Generating Process (2/2)",
+    "text": "Data Generating Process (2/2)\n\n# define data simulation function\nFUN_sim_dtCarbon &lt;- function(\n  n_subj       =         50, # number of subjects\n  n_subj_prop  =  c(.5, .5), # proportion of republican and democrat subjects\n  n_trial      =         25, # number of trials\n  beta_0       =        3.5, # intercept (grand mean) for dwell time (dt) carbon\n  beta_p       =        .10, # effect of political orientation on dt carbon\n  subj_0       =        .50, # by-subject random intercept sd for dt carbon\n  trial_0      =        .50, # by-trial random intercept sd\n  sigma        =        .10, # residual (error) sd\n  \n  truncNegNums =       TRUE # should negative number be truncuated at zero?\n) {\n  \n  # simulate data for dwell time on carbon information\n  dataSim &lt;- \n    # add random factor subject\n    add_random(subj = n_subj) %&gt;%\n    # add random factor trial\n    add_random(trial = n_trial) %&gt;%\n    # add between-subject factor political orientation (with anova contrast)\n    add_between(\"subj\", polOri = c(\"rep\", \"dem\"), .prob = n_subj_prop*n_subj, .shuffle = FALSE) %&gt;% \n    add_contrast(\"polOri\", colnames = \"X_p\", contrast = \"anova\") %&gt;% \n    # add by-subject random intercept\n    add_ranef(\"subj\", S_0 = subj_0) %&gt;% \n    # add by-trial random intercept\n    add_ranef(\"trial\", T_0 = trial_0) %&gt;% \n    # add error term\n    add_ranef(e_st = sigma) %&gt;% \n    # add response values\n    mutate(\n      # add together fixed and random effects for each effect\n      B_0 = beta_0 + S_0 + T_0,\n      B_p = beta_p,\n      # calculate dv by adding each effect term multiplied by the relevant\n      # effect-coded factors and adding the error term\n      dwellTime = B_0 + (B_p * X_p) + e_st\n    )\n  \n  # truncuate negative dwell times\n  if(truncNegNums) {\n    dataSim &lt;- dataSim %&gt;% \n      mutate(dwellTime = if_else(dwellTime &lt; 0, 0, dwellTime))\n  }\n  \n  # run a linear mixed effects model\n  mod &lt;- lmer(\n    dwellTime ~ polOri + (1 | subj) + (1 | trial),\n    data = dataSim\n  )\n  \n  # get results in tidy format\n  mod.broom &lt;- broom.mixed::tidy(mod)\n  \n  return(list(\n    dataSim = dataSim,\n    modelLmer = mod,\n    modelResults = mod.broom\n  ))\n  \n}"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#data-simulation-12",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#data-simulation-12",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Data Simulation (1/2)",
+    "text": "Data Simulation (1/2)\n\ndataSimmodelResults"
+  },
+  {
+    "objectID": "scripts/dataAndPowerSimulations_presentation.html#data-simulation-22",
+    "href": "scripts/dataAndPowerSimulations_presentation.html#data-simulation-22",
+    "title": "Simulating Data for Power Analyses",
+    "section": "Data Simulation (2/2)",
+    "text": "Data Simulation (2/2)\nRemember: We repeat the simulation of a data set a sufficient number of times (10 iterations in this example).\n\n\nCodeResultsPower\n\n\n\nFUN_powerSim &lt;- function(rep) {\n  sim &lt;- FUN_sim_dtCarbon()$modelResults\n  sim %&gt;% \n    filter(term == \"polOri.dem-rep\") %&gt;% \n    mutate(simulation = rep)\n}\n\nn_simulations &lt;- 10\n1allSimulations &lt;- map_df(1:n_simulations, FUN_powerSim)\n\n\n1\n\nApply the same function n_simulations times.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nRemember: Power = number of significant results divided by number of all simulations.\nWe can calculate power as follows:\n\nres &lt;- allSimulations %&gt;% \n  select(simulation, p.value) %&gt;% \n  mutate(significant = if_else(p.value &lt; 0.05, 1, 0))\nres\n\n# A tibble: 10 × 3\n   simulation p.value significant\n        &lt;int&gt;   &lt;dbl&gt;       &lt;dbl&gt;\n 1          1 0.00756           1\n 2          2 0.467             0\n 3          3 0.762             0\n 4          4 0.0410            1\n 5          5 0.386             0\n 6          6 0.0387            1\n 7          7 0.471             0\n 8          8 0.811             0\n 9          9 0.00175           1\n10         10 0.260             0\n\n\n\nsum(res$significant)/length(res$significant)\n\n[1] 0.4\n\n\nEquivalent but more elegant:\n\nmean(allSimulations$p.value &lt; 0.05)\n\n[1] 0.4"
   }
 ]

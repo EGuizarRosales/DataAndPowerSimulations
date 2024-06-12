@@ -9,6 +9,9 @@ website:
       - href: index.qmd
         text: Home
       - about.qmd
+      - href: scripts/dataAndPowerSimulations_presentation.qmd
+        text: Presentation
+      
 
 format:
   html:
