@@ -1,0 +1,7 @@
+---
+title: "Hands-On Simulations"
+---
+
+You can try out hands-on simulations by following this link:
+
+[https://eguizarrosales.shinyapps.io/dataAndPowerSimulations_dashboard_2/](https://eguizarrosales.shinyapps.io/dataAndPowerSimulations_dashboard_2/){target="_blank"}

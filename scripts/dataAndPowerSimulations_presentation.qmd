@@ -1,5 +1,5 @@
 ---
-title: "Simulating Data for Power Analyses"
+title: "Data and Power Simulations"
 subtitle: "Presentation for SNS Retreat 2024"
 author: "Emmanuel Guizar Rosales"
 date-format: "[last rendered on:] MMM D, YYYY"
@@ -136,7 +136,7 @@ librarian::shelf(
 
 # Simulate Data to Conduct Power Analyses
 
-## Power Simulations
+## Power Simulations: Procedure
 
 1.  Think about the **Data Generating Process** (also very useful on a conceptual level!)
 
@@ -192,7 +192,7 @@ librarian::shelf(
 
     -   Noise in the data
 
-## Data Generating Process (1/2)
+## Data Generating Process (1/3)
 
 -   Primary question: *Does participants' political orientation affect how much time they spend gathering information regarding carbon relative to bonus outcomes of their choice?*\
     \
@@ -202,6 +202,20 @@ librarian::shelf(
 
 -   Simpler question: *Does participants' political orientation affect how much time they spend on gathering information regarding carbon outcomes of their choice?*\
     ($t_{A\_Carbon} + t_{B\_Carbon}$)
+
+## Data Generating Process (2/3)
+
+**Assumptions**
+
+-   The mean time spent on gathering carbon information, irrespective of participants' political orientation, is 3.5 seconds. → **fixed intercept = 3.5**
+
+-   On average, Democrats spend 0.2 seconds longer on gathering carbon information than Republicans. That is, the mean effect of political orientation on dwell time on carbon information is 0.2 seconds. → **fixed effect of polOri = 0.2**
+
+-   Subjects differ from the two group means (Republican or Democrat). This difference is normally distributed with a mean of 0 and a standard deviation of 0.5 seconds. → **by-subject random intercept SD = 0.5**
+
+-   Within subjects, trials differ from each subjects mean dwell time. This difference is normally distributed with a mean of 0 and a standard deviation of 0.5 seconds. → **by-item random intercept SD = 0.5**
+
+-   The noise (error) in the data is normally distributed with a mean of 0 and a standard deviation of 0.1 → **random error SD = 0.1**
 
 ## Excursus: Faux
 
@@ -273,7 +287,8 @@ add_random(subj = 4, trial = 2) %>%
   add_contrast("polOri", contrast = "anova") %>% 
   add_ranef("subj", bySubjectRandomIntercept = 2) %>% # <1>
   add_ranef("trial", byTrialRandomIntercept = 1) %>% # <2>
-  add_ranef(error = 0.5) # <3>
+  add_ranef(error = 0.5) %>%  # <3>
+  select(subj, trial, starts_with("by"), error)
 ```
 
 1.  Add the by-subject random intercept with a SD = 2 (normally distributed).
@@ -314,7 +329,7 @@ add_random(subj = 4, trial = 2) %>%
 :::
 :::
 
-## Data Generating Process (2/2)
+## Data Generating Process (3/3)
 
 ```{r}
 #| label: dataGeneratingProcess
@@ -327,7 +342,7 @@ FUN_sim_dtCarbon <- function(
   n_subj_prop  =  c(.5, .5), # proportion of republican and democrat subjects
   n_trial      =         25, # number of trials
   beta_0       =        3.5, # intercept (grand mean) for dwell time (dt) carbon
-  beta_p       =        .10, # effect of political orientation on dt carbon
+  beta_p       =        .20, # effect of political orientation on dt carbon
   subj_0       =        .50, # by-subject random intercept sd for dt carbon
   trial_0      =        .50, # by-trial random intercept sd
   sigma        =        .10, # residual (error) sd
@@ -507,3 +522,41 @@ mean(allSimulations$p.value < 0.05)
 ```
 :::
 :::
+
+# Hand-On Data & Power Simulations
+
+## Interactive Dashboard
+
+Visit the following shiny application to conduct hands-on data & power simulations:
+
+[https://eguizarrosales.shinyapps.io/dataAndPowerSimulations_dashboard_2/](https://eguizarrosales.shinyapps.io/dataAndPowerSimulations_dashboard_2/){target="_blank"}
+
+## Data Simulation: Explanation (1/3)
+
+In the first panel, each point represents a subject's the mean dwell time and the lines indicate ± 1 SD. Subjects are arranged in ascending order for mean dwell time, separately for [Republicans]{style="color:red;"} and [Democrats]{style="color:dodgerblue;"}.
+
+![](../images/dashboard_subjects.png){fig-align="center"}
+
+## Data Simulation: Explanation (2/3)
+
+In the second panel, the data for [Republicans]{style="color:red;"} and [Democrats]{style="color:dodgerblue;"} are displayed on a group level using rain cloud plots.
+
+![](../images/dashboard_groups.png){fig-align="center"}
+
+## Data Simulation: Explanation (3/3)
+
+In the results panel, the left table displays results of a mixed-model that was fitted with `lmer(dwellTime ~ polOri + (1|subj) + (1|trial), data)`. The right table displays results of a simple linear regression `lm(dwellTime ~ polOri, data_aggregated)`. Note that `data_aggregated` contains for each subject one dwell time aggregated over all trials. Also note that this analysis is equivalent to a simple t-test (with equal variances).
+
+![](../images/dashboard_resultsTable.png){fig-align="center"}
+
+## Power Simulation: Explanation (1/2)
+
+The first panel shows the distribution of all fixed and random effects as estimated in the `N simulations`. The effect of Political Orientation is displayed in [blue]{style="color: #0e6ffd;"}.
+
+![](../images/dashboard_distributionOfEffects.png){fig-align="center"}
+
+## Power Simulation: Explanation (2/2)
+
+The second panel shows a density plot for the p-values of the effect of Political Orientation. Note the negative logarithmic scale on the x-axis: higher values indicate lower p-values, i.e., more significant results. The area under the density curve for p-values greater than α are displayed in [red]{style="color: red;"}, p-values smaller than α in [green]{style="color: green;"}.
+
+![](../images/dashboard_distributionOfPValues.png){fig-align="center"}

@@ -1,0 +1,16 @@
+---
+title: "Presentation"
+slide-format: revealjs
+---
+
+You can click through the presentation below or open it in a new browser tab [here](scripts/dataAndPowerSimulations_presentation.qmd){target="_blank"}.[^1]
+
+[^1]: When the presentation is opened in a new tab, you can click the `E` key,which will toggle the PDF Export Mode. Then you can print the page to a PDF file unsing your browser's print functionality.
+
+<div>
+
+```{=html}
+<iframe class="slide-deck" src="scripts/dataAndPowerSimulations_presentation.html" height="500px" width="100%"></iframe>
+```
+
+</div>

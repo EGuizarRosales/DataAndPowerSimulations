@@ -1,21 +1,24 @@
 project:
   type: website
   output-dir: docs
+  resources: images/*
 
 website:
-  title: "Data And Power Simulations"
+  title: "Data & Power Sims"
   navbar:
     left:
       - href: index.qmd
-        text: Home
-      - about.qmd
-      - href: scripts/dataAndPowerSimulations_presentation.qmd
+        text: Overview
+      - href: presentation.qmd
         text: Presentation
-      - href: scripts/EcoTRACEPowerAnalysis_report.qmd
-        text: Power Analysis EcoTRACE
-      - href: scripts/CETEyeTrackingPowerAnalysis_report.qmd
-        text: Power Analysis CET Eye-Tracking
-      
+      - href: handsOnSimulation.qmd
+        text: Hands-On Simulations
+      - text: "Example Power Analyses"
+        menu: 
+        - href: scripts/EcoTRACEPowerAnalysis_report.qmd
+          text: Power Analysis EcoTRACE
+        - href: scripts/CETEyeTrackingPowerAnalysis_report.qmd
+          text: Power Analysis CET Eye-Tracking
 
 format:
   html:

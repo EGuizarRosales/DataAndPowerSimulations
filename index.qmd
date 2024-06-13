@@ -1,11 +1,15 @@
 ---
-title: "Data And Power Simulations"
+title: "Welcome!"
 ---
 
-This is a Quarto website.
+This website accompanies the input talk *Data And Power Simulations*, which was part of the retreat of the Department of Social Neuroscience and Social Psychology at the University of Bern in June 2024.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+The content of the input talk and the website is organized as follows:
 
-```{r}
-1 + 1
-```
+1.  Presentation
+
+2.  Hands-On Simulation
+
+3.  Examples of Power Analyses
+
+The source code for all presented files, apps, and data is available on [Emmanuel's GitHub](https://github.com/EGuizarRosales/DataAndPowerSimulations) and the website is available as a GitHub Page [here](https://eguizarrosales.github.io/DataAndPowerSimulations/).

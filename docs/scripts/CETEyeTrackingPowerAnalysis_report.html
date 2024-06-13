@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.554">
+<meta name="generator" content="quarto-1.5.45">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Emmanuel Guizar Rosales">
 
-<title>Data And Power Simulations - CET Eye-Tracking Power Analysis</title>
+<title>CET Eye-Tracking Power Analysis – Data &amp; Power Sims</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -34,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -122,7 +122,7 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -163,38 +163,45 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">Data And Power Simulations</span>
+    <span class="navbar-title">Data &amp; Power Sims</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
     <a class="nav-link" href="../index.html"> 
-<span class="menu-text">Home</span></a>
+<span class="menu-text">Overview</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../about.html"> 
-<span class="menu-text">About</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../scripts/dataAndPowerSimulations_presentation.html"> 
+    <a class="nav-link" href="../presentation.html"> 
 <span class="menu-text">Presentation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../scripts/EcoTRACEPowerAnalysis_report.html"> 
-<span class="menu-text">Power Analysis EcoTRACE</span></a>
+    <a class="nav-link" href="../handsOnSimulation.html"> 
+<span class="menu-text">Hands-On Simulations</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="../scripts/CETEyeTrackingPowerAnalysis_report.html" aria-current="page"> 
-<span class="menu-text">Power Analysis CET Eye-Tracking</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-example-power-analyses" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Example Power Analyses</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-example-power-analyses">    
+        <li>
+    <a class="dropdown-item" href="../scripts/EcoTRACEPowerAnalysis_report.html">
+ <span class="dropdown-text">Power Analysis EcoTRACE</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../scripts/CETEyeTrackingPowerAnalysis_report.html">
+ <span class="dropdown-text">Power Analysis CET Eye-Tracking</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
           </div> <!-- /navcollapse -->
-          <div class="quarto-navbar-tools">
+            <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -263,7 +270,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">last rendered on: Jun 12, 2024</p>
+      <p class="date">last rendered on: Jun 13, 2024</p>
     </div>
   </div>
   
@@ -516,7 +523,7 @@ Rel\_DT\_Carbon \sim svs\_biospheric + GEB.est + (1 | ORSEE\_code) + (1 | trial\
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.decision" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.decision" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.decision-1.png" class="img-fluid figure-img" width="672">
@@ -656,7 +663,7 @@ Figure&nbsp;1: Predicted probability of making a pro-environmental choice depend
 <span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.dwellTime" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.dwellTime" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.dwellTime-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.dwellTime-1.png" class="img-fluid figure-img" width="672">
@@ -750,7 +757,7 @@ Figure&nbsp;2: Predicted probability of making a pro-environmental choice depend
 <span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>p.powC.decision</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.decision" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.decision" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.decision-1.png" class="img-fluid figure-img" width="672">
@@ -926,7 +933,7 @@ Figure&nbsp;3: Power curve for effect of relative dwell time on carbon informati
 <span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>p.powC.decision.dwellTime.effectSizes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.decision.dwellTime.effectSizes" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.decision.dwellTime.effectSizes" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.decision.dwellTime.effectSizes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.decision.dwellTime.effectSizes-1.png" class="img-fluid figure-img" width="672">
@@ -1015,7 +1022,7 @@ Figure&nbsp;4: Power curve for the effect of relative dwell time on carbon infor
 <span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>p.powC.dwellTime.svs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.dwellTime.svs" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.dwellTime.svs" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.dwellTime.svs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.dwellTime.svs-1.png" class="img-fluid figure-img" width="672">
@@ -1192,7 +1199,7 @@ Figure&nbsp;5: Power curve for effect of pro-environmental attitudes as assessed
 <span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>p.powC.dwellTime.svs.effectSizes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.dwellTime.svs.effectSizes" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.dwellTime.svs.effectSizes" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.dwellTime.svs.effectSizes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.dwellTime.svs.effectSizes-1.png" class="img-fluid figure-img" width="672">
@@ -1270,7 +1277,7 @@ Figure&nbsp;6: Power curves for predicting relative dwell time on carbon informa
 <span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>p.powC.dwellTime.geb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.dwellTime.geb" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.dwellTime.geb" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.dwellTime.geb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.dwellTime.geb-1.png" class="img-fluid figure-img" width="672">
@@ -1449,7 +1456,7 @@ Figure&nbsp;7: Power curve for effect of pro-environmental attitudes as assessed
 <span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>p.powC.dwellTime.geb.effectSizes</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.dwellTime.geb.effectSizes" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.dwellTime.geb.effectSizes" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.dwellTime.geb.effectSizes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.dwellTime.geb.effectSizes-1.png" class="img-fluid figure-img" width="672">
@@ -1642,7 +1649,7 @@ Figure&nbsp;8: Power curves for predicting relative dwell time on carbon informa
 <span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.decision.attitudesDTinteraction" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.decision.attitudesDTinteraction" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.decision.attitudesDTinteraction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.decision.attitudesDTinteraction-1.png" class="img-fluid figure-img" width="672">
@@ -1732,7 +1739,7 @@ Figure&nbsp;9: Predicted probability of making a pro-environmental choice depend
 <span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>p.powC.decision.attitudesDT</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.decision.attitudesDT" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.decision.attitudesDT" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.decision.attitudesDT-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.decision.attitudesDT-1.png" class="img-fluid figure-img" width="672">
@@ -1818,7 +1825,7 @@ Figure&nbsp;10: Power curve for the effect of relative dwell time on pro-environ
 <span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>p.powC.decision.attitudesDTinteraction</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.decision.attitudesDTinteraction" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.decision.attitudesDTinteraction" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.decision.attitudesDTinteraction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.decision.attitudesDTinteraction-1.png" class="img-fluid figure-img" width="672">
@@ -1943,7 +1950,7 @@ nb\_transition \sim svs\_biospheric + GEB.est + (1 | ORSEE\_code) + (1 | trial\_
 <span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.decision.transition" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.decision.transition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.decision.transition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.decision.transition-1.png" class="img-fluid figure-img" width="672">
@@ -2083,7 +2090,7 @@ Figure&nbsp;12: Predicted probability of making a pro-environmental decision dep
 <span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.dwellTime.transition" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.dwellTime.transition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.dwellTime.transition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.dwellTime.transition-1.png" class="img-fluid figure-img" width="672">
@@ -2261,7 +2268,7 @@ Figure&nbsp;13: Predicted probability of making a pro-environmental choice depen
 <span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.decision.attitudesTransitionInteraction" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.decision.attitudesTransitionInteraction" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.decision.attitudesTransitionInteraction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.decision.attitudesTransitionInteraction-1.png" class="img-fluid figure-img" width="672">
@@ -2291,7 +2298,7 @@ Figure&nbsp;14: Predicted probability of making a pro-environmental choice depen
 <span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-m.decision.attitudesTransitionInteraction-xAttitudes" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-m.decision.attitudesTransitionInteraction-xAttitudes" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-m.decision.attitudesTransitionInteraction-xAttitudes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-m.decision.attitudesTransitionInteraction-xAttitudes-1.png" class="img-fluid figure-img" width="672">
@@ -2381,7 +2388,7 @@ Figure&nbsp;15: Predicted probability of making a pro-environmental choice depen
 <span id="cb37-34"><a href="#cb37-34" aria-hidden="true" tabindex="-1"></a>p.powC.decision.attitudesTransition</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.decision.attitudesTransition" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.decision.attitudesTransition" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.decision.attitudesTransition-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.decision.attitudesTransition-1.png" class="img-fluid figure-img" width="672">
@@ -2468,7 +2475,7 @@ Figure&nbsp;16: Power curve for main effect of the number of transitions between
 <span id="cb39-34"><a href="#cb39-34" aria-hidden="true" tabindex="-1"></a>p.powC.decision.attitudesTransitionInteraction</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-p.powC.decision.attitudesTransitionInteraction" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-p.powC.decision.attitudesTransitionInteraction" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-p.powC.decision.attitudesTransitionInteraction-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="CETEyeTrackingPowerAnalysis_report_files/figure-html/fig-p.powC.decision.attitudesTransitionInteraction-1.png" class="img-fluid figure-img" width="672">
@@ -2534,18 +2541,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -2577,7 +2573,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp('/' + window.location.host + '/');
@@ -2585,7 +2603,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
