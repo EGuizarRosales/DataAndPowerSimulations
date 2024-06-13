@@ -19,6 +19,9 @@ website:
           text: Power Analysis EcoTRACE
         - href: scripts/CETEyeTrackingPowerAnalysis_report.qmd
           text: Power Analysis CET Eye-Tracking
+    right:
+      - icon: github
+        href: "https://github.com/EGuizarRosales/DataAndPowerSimulations"
 
 format:
   html:
