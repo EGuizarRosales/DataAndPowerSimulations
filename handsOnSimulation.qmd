@@ -5,3 +5,9 @@ title: "Hands-On Simulations"
 You can try out hands-on simulations by following this link:
 
 [https://eguizarrosales.shinyapps.io/dataAndPowerSimulations_dashboard_2/](https://eguizarrosales.shinyapps.io/dataAndPowerSimulations_dashboard_2/){target="_blank"}
+
+You will see a dashboard with to pages that will look like this:
+
+![](images/dashboard_page1.png){fig-align="center"}
+
+![](images/dashboard_page2.png){fig-align="center"}

@@ -2,7 +2,11 @@
 title: "Welcome!"
 ---
 
-This website accompanies the input talk *Data And Power Simulations*, which was part of the retreat of the Department of Social Neuroscience and Social Psychology at the University of Bern in June 2024.
+![](images/logo.png){fig-align="center" width="300"}
+
+This website accompanies the input talk *Data And Power Simulations*[^1], which was part of the retreat of the Department of Social Neuroscience and Social Psychology at the University of Bern in June 2024.
+
+[^1]: The source code for this website is available on <https://github.com/EGuizarRosales/DataAndPowerSimulations>. The source code for the shiny app is available on <https://github.com/EGuizarRosales/DataAndPowerSimulations_dashboard>.
 
 The content of the input talk and the website is organized as follows:
 
@@ -12,4 +16,4 @@ The content of the input talk and the website is organized as follows:
 
 3.  Examples of Power Analyses
 
-The source code for all presented files, apps, and data is available on [Emmanuel's GitHub](https://github.com/EGuizarRosales/DataAndPowerSimulations) and the website is available as a GitHub Page [here](https://eguizarrosales.github.io/DataAndPowerSimulations/).
+Happy simulations!
