@@ -693,6 +693,8 @@ dataPower %>%
 
 ### Generalized code
 
+We can define a more general function that allows to easily change other parameters of our simulations:
+
 ```{r}
 #| label: powerCurves_function
 #| echo: true
@@ -757,6 +759,8 @@ out_FUN_multiSims <- FUN_multiSims(
   n_simulations = 1000
 )
 ```
+
+We can additionally define a function to calculate power for a specific α level and a function for plotting power curves.
 
 ```{r}
 #| label: powerCurves_function_out
