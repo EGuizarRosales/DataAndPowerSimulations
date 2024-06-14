@@ -560,3 +560,350 @@ The first panel shows the distribution of all fixed and random effects as estima
 The second panel shows a density plot for the p-values of the effect of Political Orientation. Note the negative logarithmic scale on the x-axis: higher values indicate lower p-values, i.e., more significant results. The area under the density curve for p-values greater than α are displayed in [red]{style="color: red;"}, p-values smaller than α in [green]{style="color: green;"}.
 
 ![](../images/dashboard_distributionOfPValues.png){fig-align="center"}
+
+# Power Curves
+
+## Power Curves (1/7)
+
+-   One of the most prominent reasons to conduct power analyses is to determine **sample sizes**.
+
+-   Power Curves plot sample size on the x-axis and calculated power to detect an effect of interest on the y-axis (example from G\*Power).
+
+. . .
+
+![](https://www.psychologie.hhu.de/fileadmin/redaktion/Fakultaeten/Mathematisch-Naturwissenschaftliche_Fakultaet/Psychologie/AAP/gpower/GPowerGraphWindow.png){fig-align="center" width="450"}
+
+## Power Curves (2/7)
+
+-   We can create power curves by repeatedly conducting power simulations for different sample sizes.
+
+-   Additionally, it is insightful to also vary other parameters like the effect size or the alpha level.
+
+## Power Curves (3/7)
+
+::: panel-tabset
+### Code
+
+```{r}
+#| label: powerCurves_allSims
+#| echo: true
+#| code-fold: false
+
+# define parameters
+sampleSizes <- c(50, 100)
+effectSizes <- c(0.2, 0.3)
+n_simulations <- 10
+
+allSims <- tibble()
+for (i in sampleSizes) {
+  
+  sims_otherParam <- tibble()
+  for (j in effectSizes) {
+    
+    current_simulations <- tibble()
+    for(k in 1:n_simulations) {
+      sim <- FUN_sim_dtCarbon(
+        n_subj       =          i, # number of subjects
+        n_subj_prop  =  c(.5, .5), # proportion of republican and democrat subjects
+        n_trial      =         25, # number of trials
+        beta_0       =        3.5, # intercept (grand mean) for dwell time (dt) carbon
+        beta_p       =          j, # effect of political orientation on dt carbon
+        subj_0       =        .50, # by-subject random intercept sd for dt carbon
+        trial_0      =        .50, # by-trial random intercept sd
+        sigma        =        .10, # residual (error) sd
+        
+        truncNegNums =       TRUE # should negative number be truncuated at zero?
+      )$modelResults %>% 
+        filter(term == "polOri.dem-rep") %>% 
+        mutate(
+          sampleSize = i,
+          effectSize = j,
+          simulation = k
+        )
+      current_simulations <- rbind(current_simulations, sim)
+    }
+    
+    sims_otherParam <- rbind(sims_otherParam, current_simulations)
+  }
+  
+  allSims <- rbind(allSims, sims_otherParam)
+}
+```
+
+### Output
+
+```{r}
+#| label: powerCurves_allSims_table
+
+allSims %>% 
+  select(sampleSize, effectSize, simulation, p.value) %>% 
+  DT::datatable() %>% 
+  formatRound(columns = "p.value", digits = 3)
+```
+:::
+
+## Power Curves (4/7)
+
+::: nonincremental
+::: panel-tabset
+### Code
+
+```{r}
+#| label: powerCurves_power
+#| echo: true
+#| code-fold: false
+
+
+dataPower <- allSims %>% 
+  group_by(sampleSize, effectSize) %>% 
+  summarise(
+    power = mean(p.value < 0.05),
+    n = n(), #<1>
+    x = power*n() #<2>
+  ) %>% 
+  # mutate(power_str = paste0(round(power * 100, 2), "%")) %>% 
+  mutate(
+    ci_lower = binom::binom.confint(x, n, .95, "exact")$lower,
+    ci_upper = binom::binom.confint(x, n, .95, "exact")$upper
+  ) %>% 
+  mutate(across(
+    .cols = c("power", "ci_lower", "ci_upper"),
+    .fns = \(x) round(x * 100, 2),
+    .names = "{.col}_prcnt"
+  )) %>% 
+  mutate(across(
+    .cols = ends_with("prcnt"),
+    .fns = \(x) paste0(format(x, nsmall = 2), "%"),
+    .names = "{.col}_str"
+  )) %>% 
+  ungroup()
+```
+
+1.  number of simulations
+2.  number of successses (significant p values)
+
+### Output
+
+```{r}
+#| label: powerCurves_power_table
+dataPower %>% 
+  select(sampleSize, effectSize, ends_with("str")) %>% 
+  DT::datatable()
+```
+
+### Generalized code
+
+```{r}
+#| label: powerCurves_function
+#| echo: true
+#| eval: false
+
+# create a version of the main function that takes variable arguments
+FUN_sim_dtCarbon_args <- function(...) {FUN_sim_dtCarbon(...)}
+
+# create a function that can handle different parameters
+FUN_multiSims <- function(
+  sampleSizes      = c(50, 100),    # vector of sample sizes
+  param_name       = "beta_p",      # name of the parameter that should be iterated over
+  param_values     = c(0.2, 0.3),   # values of the parameter that should be iterated over
+  n_simulations    = 10,            # number of simulations
+  ...                               # additional arguments passed to FUN_sim_dtCarbon_args,
+                                    # e.g., sigma = 1
+) {
+  
+  allSims <- tibble()
+  for (i in sampleSizes) {
+    
+    sims_otherParam <- tibble()
+    for (j in param_values) {
+      
+      current_simulations <- tibble()
+      for(k in 1:n_simulations) {
+        
+        # define list of arguments to be passed to FUN_multiSims
+        
+        # first define the arguments we iterate over 
+        listOfArguments <- setNames(list(i, j), c("n_subj", param_name))
+        # then define potential additional arguments that are passed by the ...
+        listOfArguments <- c(listOfArguments, ...)
+        
+        # do the simulation, get the results for the effect of interest, and
+        # add sample size, param name and value and number of simulation
+        sim <- do.call(FUN_sim_dtCarbon_args, list(n_subj = i, beta_p = j))$modelResults %>% 
+          filter(term == "polOri.dem-rep") %>% 
+          mutate(
+            sampleSize = i,
+            param_name = param_name,
+            param_value = j,
+            simulation = k
+          )
+        current_simulations <- rbind(current_simulations, sim)
+      }
+      
+      sims_otherParam <- rbind(sims_otherParam, current_simulations)
+    }
+    
+    allSims <- rbind(allSims, sims_otherParam)
+  }
+  
+  return(allSims)
+  
+}
+
+out_FUN_multiSims <- FUN_multiSims(
+  sampleSizes = seq(50, 200, 50),
+  param_name = "beta_p",
+  param_values = seq(.1, .3, .1),
+  n_simulations = 1000
+)
+```
+
+```{r}
+#| label: powerCurves_function_out
+#| echo: true
+
+# read in simulations
+out_FUN_multiSims_s1000 <- readRDS("../data/powerAnalyses/out_FUN_multiSims_s1000.RDS")
+
+# read in simulations
+out_FUN_multiSims_s100 <- readRDS("../data/powerAnalyses/out_FUN_multiSims_s100.RDS")
+
+# define function to calculate power
+FUN_multiSims_power <- function(sims, alpha = 0.05) {
+  sims %>% 
+    mutate(param_value = factor(param_value)) %>% 
+    group_by(sampleSize, param_value) %>% 
+    summarise(
+      power = mean(p.value < alpha),
+      n = n(),
+      x = power*n()
+    ) %>% 
+    mutate(
+      ci_lower = binom::binom.confint(x, n, .95, "exact")$lower,
+      ci_upper = binom::binom.confint(x, n, .95, "exact")$upper
+    ) %>% 
+    mutate(across(
+      .cols = c("power", "ci_lower", "ci_upper"),
+      .fns = \(x) round(x * 100, 2),
+      .names = "{.col}_prcnt"
+    )) %>% 
+    mutate(across(
+      .cols = ends_with("prcnt"),
+      .fns = \(x) paste0(format(x, nsmall = 2), "%"),
+      .names = "{.col}_str"
+    )) %>% 
+    ungroup()
+}
+
+# define function to plot power curves
+FUNPlotPowerCurve <- function(
+  myData,
+  myBreaks = seq(50, 200, 50),
+  myLegendTitle = waiver(),
+  myLegendLabels = waiver()
+) {
+  plot <- myData %>% 
+    ggplot(aes(
+      x = sampleSize,
+      y = power,
+      ymin = ci_lower,
+      ymax = ci_upper,
+      color = param_value,
+      fill = param_value
+    )) +
+    geom_ribbon(alpha = .1, color = NA) +
+    geom_errorbar(width = 1.5) +
+    geom_line() +
+    geom_point() +
+    geom_hline(yintercept = .95, color = "grey70", linetype = "dashed") +
+    scale_x_continuous(breaks = myBreaks) +
+    scale_y_continuous(
+      limits = c(0, 1),
+      breaks = seq(0, 1, .05),
+      labels = paste0(seq(0, 100, 5), "%")
+    ) +
+    ggthemes::scale_color_colorblind(labels = myLegendLabels) +
+    ggthemes::scale_fill_colorblind(labels = myLegendLabels) +
+    labs(
+      x = "Number of Participants",
+      y = "Power",
+      color = myLegendTitle,
+      fill = myLegendTitle
+    ) +
+    theme_bw() +
+    theme(
+      # legend.position = c(.875, .1),
+      panel.grid.minor = element_blank(),
+      panel.border = element_blank(),
+      axis.line = element_line(color = "black")
+    )
+  return(plot)
+}
+```
+:::
+:::
+
+## Power Curves (5/7)
+
+```{r}
+#| label: fig-powerCurveN1000Alpha05
+#| echo: true
+#| fig-width: 7
+
+FUN_multiSims_power(
+  sims = out_FUN_multiSims_s1000,
+  alpha = 0.05
+) %>% 
+  FUNPlotPowerCurve(
+    myLegendTitle = "Effect Size"
+  ) +
+  labs(title = "Power Curve for polOri (nSims = 1'000, alpha = 0.05)")
+```
+
+## Power Curves (6/7)
+
+```{r}
+#| label: fig-powerCurveN1000Alpha01
+#| echo: true
+#| fig-width: 7
+
+FUN_multiSims_power(
+  sims = out_FUN_multiSims_s1000,
+  alpha = 0.01
+) %>% 
+  FUNPlotPowerCurve(
+    myLegendTitle = "Effect Size"
+  ) +
+  labs(title = "Power Curve for polOri (nSims = 1'000, alpha = 0.01)")
+```
+
+## Power Curves (7/7)
+
+```{r}
+#| label: fig-powerCurveN100Alpha01
+#| echo: true
+#| fig-width: 7
+
+FUN_multiSims_power(
+  sims = out_FUN_multiSims_s100,
+  alpha = 0.01
+) %>% 
+  FUNPlotPowerCurve(
+    myLegendTitle = "Effect Size"
+  ) +
+  labs(title = "Power Curve for polOri (nSims = 100, alpha = 0.01)")
+```
+
+# `simr`
+
+## `simr`
+
+`simr` is a package that allows to conduct power simulations for mixed models. It works both for *a priori* power simulations **without** pilot data as well as (and even better) for *a priori* power simulations **with** pilot data.
+
+The **advantages** of `simr` are that it is easier to use than doing power simulations yourself and it makes it also easy to generate power curves. Additionally, it is somewhat more optimized for efficient code execution.
+
+The **disadvantages** of `simr` are that it less flexibel than your ifinitely customizable data and power simulations. It can also be less efficient in some respects. For instance, you only can only simulate power for one effect of your model at once (while we can save all effects of a model in one simulation in our custom simulations).
+
+My recommendation: If you have pilot data, use `simr`. If you do not, do your own simulations.
+
+# Thanks for your attention!
