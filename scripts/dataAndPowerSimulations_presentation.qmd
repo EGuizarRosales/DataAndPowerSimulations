@@ -166,7 +166,7 @@ librarian::shelf(
 
 -   **Methods**
 
-    -   Online process-tracing using mouselabWEB ([Try EcoTRACE](http://localhost/EcoTRACE_06/XX_startPage.php?subject=S001&condnum=0){preview-link="true"})
+    -   Online process-tracing using mouselabWEB ([Try EcoTRACE](https://decision-making.unibe.ch/EcoTRACE_Pilot01_example/XX_startPage.php){target="_blank"})
 
     -   Representative US sample (total N = 1'100)
 
