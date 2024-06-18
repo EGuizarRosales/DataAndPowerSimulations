@@ -166,11 +166,16 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="images/dashboard_page1.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
+<p>In the first panel, each point represents a subject’s mean dwell time (over all trials) and the lines indicate ± 1 SD. Subjects are arranged in ascending order for mean dwell time, separately for <span style="color:red;">Republicans</span> and <span style="color:dodgerblue;">Democrats</span>. The solid black line represents the sample mean, and the blue and red dashed lines represent the mean for Republicans and Democrats, respectively.</p>
+<p>In the second panel, the data for <span style="color:red;">Republicans</span> and <span style="color:dodgerblue;">Democrats</span> are displayed on a group level using rain cloud plots.</p>
+<p>In the results panel, the left table displays results of a mixed-model that was fitted with <code>lmer(dwellTime ~ polOri + (1|subj) + (1|trial), data)</code>. The right table displays results of a simple linear regression <code>lm(dwellTime ~ polOri, data_aggregated)</code>. Note that <code>data_aggregated</code> contains for each subject the mean dwell time aggregated over all trials. Also note that this analysis is equivalent to a simple t-test (with equal variances).</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/dashboard_page2.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
 </figure>
 </div>
+<p>The first panel shows the distribution of all fixed and random effects as estimated in the <code>N simulations</code>. The effect of Political Orientation is displayed in <span style="color: #0e6ffd;">blue</span>.</p>
+<p>The second panel shows a density plot for the p-values of the effect of Political Orientation. Note the negative logarithmic scale on the x-axis: higher values indicate lower p-values, i.e., more significant results. The area under the density curve for p-values greater than α are displayed in <span style="color: red;">red</span>, p-values smaller than α in <span style="color: green;">green</span>.</p>
 
 
 

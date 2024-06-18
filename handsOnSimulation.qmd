@@ -10,4 +10,14 @@ You will see a dashboard with to pages that will look like this:
 
 ![](images/dashboard_page1.png){fig-align="center"}
 
+In the first panel, each point represents a subject's mean dwell time (over all trials) and the lines indicate ± 1 SD. Subjects are arranged in ascending order for mean dwell time, separately for [Republicans]{style="color:red;"} and [Democrats]{style="color:dodgerblue;"}. The solid black line represents the sample mean, and the blue and red dashed lines represent the mean for Republicans and Democrats, respectively.
+
+In the second panel, the data for [Republicans]{style="color:red;"} and [Democrats]{style="color:dodgerblue;"} are displayed on a group level using rain cloud plots.
+
+In the results panel, the left table displays results of a mixed-model that was fitted with `lmer(dwellTime ~ polOri + (1|subj) + (1|trial), data)`. The right table displays results of a simple linear regression `lm(dwellTime ~ polOri, data_aggregated)`. Note that `data_aggregated` contains for each subject the mean dwell time aggregated over all trials. Also note that this analysis is equivalent to a simple t-test (with equal variances).
+
 ![](images/dashboard_page2.png){fig-align="center"}
+
+The first panel shows the distribution of all fixed and random effects as estimated in the `N simulations`. The effect of Political Orientation is displayed in [blue]{style="color: #0e6ffd;"}.
+
+The second panel shows a density plot for the p-values of the effect of Political Orientation. Note the negative logarithmic scale on the x-axis: higher values indicate lower p-values, i.e., more significant results. The area under the density curve for p-values greater than α are displayed in [red]{style="color: red;"}, p-values smaller than α in [green]{style="color: green;"}.

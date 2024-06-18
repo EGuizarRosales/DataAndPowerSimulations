@@ -533,7 +533,7 @@ Visit the following shiny application to conduct hands-on data & power simulatio
 
 ## Data Simulation: Explanation (1/3)
 
-In the first panel, each point represents a subject's the mean dwell time and the lines indicate ± 1 SD. Subjects are arranged in ascending order for mean dwell time, separately for [Republicans]{style="color:red;"} and [Democrats]{style="color:dodgerblue;"}.
+In the first panel, each point represents a subject's mean dwell time (over all trials) and the lines indicate ± 1 SD. Subjects are arranged in ascending order for mean dwell time, separately for [Republicans]{style="color:red;"} and [Democrats]{style="color:dodgerblue;"}. The solid black line represents the sample mean, and the blue and red dashed lines represent the mean for Republicans and Democrats, respectively.
 
 ![](../images/dashboard_subjects.png){fig-align="center"}
 
@@ -545,7 +545,7 @@ In the second panel, the data for [Republicans]{style="color:red;"} and [Democra
 
 ## Data Simulation: Explanation (3/3)
 
-In the results panel, the left table displays results of a mixed-model that was fitted with `lmer(dwellTime ~ polOri + (1|subj) + (1|trial), data)`. The right table displays results of a simple linear regression `lm(dwellTime ~ polOri, data_aggregated)`. Note that `data_aggregated` contains for each subject one dwell time aggregated over all trials. Also note that this analysis is equivalent to a simple t-test (with equal variances).
+In the results panel, the left table displays results of a mixed-model that was fitted with `lmer(dwellTime ~ polOri + (1|subj) + (1|trial), data)`. The right table displays results of a simple linear regression `lm(dwellTime ~ polOri, data_aggregated)`. Note that `data_aggregated` contains for each subject the mean dwell time aggregated over all trials. Also note that this analysis is equivalent to a simple t-test (with equal variances).
 
 ![](../images/dashboard_resultsTable.png){fig-align="center"}
 
