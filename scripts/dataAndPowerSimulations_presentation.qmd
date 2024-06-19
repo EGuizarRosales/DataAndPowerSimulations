@@ -49,7 +49,7 @@ librarian::shelf(
 
 -   **Definition of Statistical Power**
     -   Statistical power is the probability that a test will correctly reject a false null hypothesis (i.e., detect an effect when there is one).
-    -   It is usually denotes as $1-\beta$, where $\beta$ is the Type II error rate ( the probability of failing to reject a false null hypothesis).
+    -   It is usually denoted as $1-\beta$, where $\beta$ is the Type II error rate ( the probability of failing to reject a false null hypothesis).
 -   **Importance of Statistical Power**
     -   High power reduces the risk of Type II errors.
     -   Ensures that studies are capable of detecting meaningful effects.
@@ -142,7 +142,7 @@ librarian::shelf(
 
 2.  Define the parameters:
 
-    1.  sample sizes (subjects, trials),
+    1.  sample sizes (subjects, trials)
 
     2.  sizes for fixed and random effects (including residual (error) variance)
 
@@ -152,14 +152,14 @@ librarian::shelf(
 
 4.  Analyse the data set (fit your model to the data) and store the p value of your effect(s) of interest.
 
-5.  Repeat steps 3 and 4 for a sufficient number of times (e.g., 1000 iterations).
+5.  Repeat steps 3 and 4 for a sufficient number of times (e.g., 1'000 iterations).
 
 6.  Count the number of analyses with significant results (true positives) and divide it by the total number of analyses (i.e., iterations) = **Power**
 
 ## Example: EcoTRACE Project
 
 -   **Primary Question:**\
-    Does political orientation affect how individual search for, process, and integrate information during climate-relevant decision-making? (process-tracing measures as dependent variables)
+    Does political orientation affect how individuals search for, process, and integrate information during climate-relevant decision-making? (process-tracing measures as dependent variables)
 
 -   **Secondary Questions:**\
     Do the occurrence of extreme weather events and participants' attribution of such events to climate change moderate the effect of political orientation on process-tracing measures?
@@ -213,7 +213,7 @@ librarian::shelf(
 
 -   Subjects differ from the two group means (Republican or Democrat). This difference is normally distributed with a mean of 0 and a standard deviation of 0.5 seconds. → **by-subject random intercept SD = 0.5**
 
--   Within subjects, trials differ from each subjects mean dwell time. This difference is normally distributed with a mean of 0 and a standard deviation of 0.5 seconds. → **by-item random intercept SD = 0.5**
+-   Within subjects, trials differ from each subject's mean dwell time. This difference is normally distributed with a mean of 0 and a standard deviation of 0.5 seconds. → **by-item random intercept SD = 0.5**
 
 -   The noise (error) in the data is normally distributed with a mean of 0 and a standard deviation of 0.1 → **random error SD = 0.1**
 
